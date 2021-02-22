@@ -1,15 +1,23 @@
 {
   "compilerOptions": {
+    "declaration": true,
     "jsx": "react",
-    "module": "commonjs",
+    "module": "es2015",
+    "moduleResolution": "node",
     "noImplicitAny": true,
     "outDir": "./build/",
     "preserveConstEnums": true,
     "removeComments": true,
     "sourceMap": true,
-    "target": "es5"
+    "target": "es2015",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "lib": [
+      "es6",
+      "dom"
+    ]
   },
   "include": [
-    "src/index.tsx"
+    "src"
   ]
 }
