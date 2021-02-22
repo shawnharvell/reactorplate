@@ -15,3 +15,7 @@ comments on eslint
 comments on prettier
 
 - include vscode prettier plugin
+
+comments on sass/sass-lint/etc
+
+include basic examples of how to disable rules for lint, sass-lint, etc
