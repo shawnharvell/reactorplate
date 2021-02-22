@@ -28,3 +28,5 @@ https://www.npmjs.com/package/@storybook/addon-a11y
 - put all these docs in separate BOILERPLATE.md
 
 https://www.npmjs.com/package/cross-env
+
+https://www.npmjs.com/package/react-use
