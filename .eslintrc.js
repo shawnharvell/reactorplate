@@ -55,5 +55,9 @@ module.exports = {
     // note you must disable the base rule as it can report incorrect errors
     quotes: "off",
     "@typescript-eslint/quotes": ["error", "double", { allowTemplateLiterals: true }],
+    "import/no-extraneous-dependencies": [
+      "error",
+      { devDependencies: ["**/*.test.*", "**/*.spec.*", "**/*.stories.*"] },
+    ],
   },
 };
