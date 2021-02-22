@@ -21,3 +21,10 @@ comments on sass/sass-lint/etc
 include basic examples of how to disable rules for lint, sass-lint, etc
 
 https://github.com/typescript-cheatsheets/react#reacttypescript-cheatsheets
+
+https://www.npmjs.com/package/@axe-core/react
+https://www.npmjs.com/package/@storybook/addon-a11y
+
+- put all these docs in separate BOILERPLATE.md
+
+https://www.npmjs.com/package/cross-env

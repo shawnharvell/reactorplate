@@ -18,7 +18,9 @@
     "build-storybook": "build-storybook"
   },
   "devDependencies": {
+    "@axe-core/react": "^4.1.1",
     "@babel/core": "^7.12.17",
+    "@storybook/addon-a11y": "^6.1.18",
     "@storybook/addon-actions": "^6.1.18",
     "@storybook/addon-essentials": "^6.1.18",
     "@storybook/addon-links": "^6.1.18",
@@ -30,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "awesome-typescript-loader": "^5.2.1",
     "babel-loader": "^8.2.2",
+    "cross-env": "^7.0.3",
     "css-loader": "^5.0.2",
     "eslint": "^7.20.0",
     "eslint-config-airbnb-typescript": "^12.3.1",
