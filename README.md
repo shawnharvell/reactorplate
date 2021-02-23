@@ -30,3 +30,5 @@ https://www.npmjs.com/package/@storybook/addon-a11y
 https://www.npmjs.com/package/cross-env
 
 https://www.npmjs.com/package/react-use
+
+comments on history, marked, superagent/superagent-promise
