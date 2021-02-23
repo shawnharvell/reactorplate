@@ -5,7 +5,6 @@
   "main": "index.tsx",
   "author": "Shawn Harvell <sharvell@jbecker.com>",
   "license": "MIT",
-  "private": false,
   "scripts": {
     "start": "webpack serve --open",
     "build": "webpack",
