@@ -23,9 +23,8 @@ module.exports = {
   rules: {
     // too restrictive for an edge case anyway https://eslint.org/docs/rules/no-prototype-builtins
     "no-prototype-builtins": "off",
-    // https://basarat.gitbooks.io/typescript/docs/tips/defaultIsBad.html
     "import/prefer-default-export": "off",
-    "import/no-default-export": "error",
+    "import/no-default-export": "off",
     // too restrictive: https://github.com/yannickcr/eslint-plugin-react/blob/master/docs/rules/destructuring-assignment.md
     "react/destructuring-assignment": "off",
     // no jsx extension: https://github.com/facebook/create-react-app/issues/87#issuecomment-234627904
@@ -44,6 +43,8 @@ module.exports = {
     ],
     // abbreviations are known and readable
     "unicorn/prevent-abbreviations": "off",
+    // returning null is a normal pattern for react components
+    "unicorn/no-null": "off",
     // TypeScript largely obviates prop-types for standard projects, the exception (reason to turn this
     // back on) would be if you're authoring a library that might be imported by a non-TypeScript project
     "react/prop-types": "off",
