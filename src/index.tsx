@@ -1,6 +1,10 @@
-import React from "react";
 import ReactDOM from "react-dom";
-import { App } from "./App";
+import { Provider } from "react-redux";
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+
+import App from "./components/App";
+import { store } from "./store";
 
 if (process.env.NODE_ENV !== "production") {
   // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, import/no-extraneous-dependencies
@@ -8,4 +12,12 @@ if (process.env.NODE_ENV !== "production") {
   axe(React, ReactDOM, 1000);
 }
 
-ReactDOM.render(<App userName="Shawn" lang="TypeScript" />, document.querySelector("#app-mountpoint"));
+ReactDOM.render(
+  <Provider store={store}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </Provider>,
+
+  document.querySelector("#app-mountpoint")
+);
