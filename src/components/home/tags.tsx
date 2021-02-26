@@ -1,11 +1,10 @@
 import React from "react";
-import agent from "../../agent";
 
 import * as Types from "../../reducers/types";
 
 export interface TagsProps {
   tags?: Types.Tag[];
-  onClickTag?: (tag: string, pager: any, payload: any) => void;
+  onClickTag?: (tag: string) => void;
 }
 
 const Tags: React.FC<TagsProps> = ({ tags, onClickTag }) => {
@@ -15,11 +14,11 @@ const Tags: React.FC<TagsProps> = ({ tags, onClickTag }) => {
         {tags.map((tag) => {
           const handleClick = (ev: React.MouseEvent) => {
             ev.preventDefault();
-            onClickTag(tag, (page: number) => agent.Articles.byTag(tag, page), agent.Articles.byTag(tag));
+            onClickTag?.(tag);
           };
 
           return (
-            <a href="" className="tag-default tag-pill" key={tag} onClick={handleClick}>
+            <a href="#" className="tag-default tag-pill" key={tag} onClick={handleClick}>
               {tag}
             </a>
           );

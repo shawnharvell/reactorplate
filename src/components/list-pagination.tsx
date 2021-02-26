@@ -1,21 +1,12 @@
 import React from "react";
-import { connect } from "react-redux";
-
-import agent, { ArticleListResult } from "../agent";
-import { SET_PAGE } from "../constants/action-types";
-
-const mapDispatchToProps = (dispatch: any) => ({
-  onSetPage: (page: number, payload: any) => dispatch({ type: SET_PAGE, page, payload }),
-});
 
 export interface ListPaginationProps {
   articlesCount?: number;
   currentPage?: number;
-  pager?: (page: number) => Promise<ArticleListResult>;
-  onSetPage?: (page: number, payload: any) => void;
+  onSetPage?: (page: number) => void;
 }
 
-const ListPagination: React.FC<ListPaginationProps> = ({ articlesCount, pager, onSetPage, currentPage }) => {
+const ListPagination: React.FC<ListPaginationProps> = ({ articlesCount, onSetPage, currentPage }) => {
   if (articlesCount <= 10) {
     return null;
   }
@@ -26,11 +17,7 @@ const ListPagination: React.FC<ListPaginationProps> = ({ articlesCount, pager, o
   }
 
   const setPage = (page: number) => {
-    if (pager) {
-      onSetPage(page, pager(page));
-    } else {
-      onSetPage(page, agent.Articles.all(page));
-    }
+    onSetPage?.(page);
   };
 
   return (
@@ -55,4 +42,4 @@ const ListPagination: React.FC<ListPaginationProps> = ({ articlesCount, pager, o
   );
 };
 
-export default connect(() => ({}), mapDispatchToProps)(ListPagination);
+export default ListPagination;

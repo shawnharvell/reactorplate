@@ -8,7 +8,7 @@ import CommentContainer from "./comment-container";
 import agent from "../../agent";
 import * as Types from "../../reducers/types";
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: { common: { currentUser: Types.User } }) => ({
   currentUser: state.common.currentUser,
 });
 

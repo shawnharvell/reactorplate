@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import { Route, Switch, useHistory } from "react-router-dom";
+import { Dispatch } from "redux";
 
-import agent from "../agent";
+import agent, { UserResult } from "../agent";
 import Header from "./header";
 import { APP_LOAD, REDIRECT } from "../constants/action-types";
 import Article from "./article";
@@ -23,13 +24,14 @@ const mapStateToProps = (state: {
   redirectTo: state.common.redirectTo,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  onLoad: (payload: any, token: string) => dispatch({ type: APP_LOAD, payload, token, skipTracking: true }),
+const mapDispatchToProps = (dispatch: Dispatch) => ({
+  onLoad: (payload: Promise<UserResult>, token: string) =>
+    dispatch({ type: APP_LOAD, payload, token, skipTracking: true }),
   onRedirect: () => dispatch({ type: REDIRECT }),
 });
 
 export interface AppProps {
-  onLoad?: (payload: any, token?: string) => void;
+  onLoad?: (payload: Promise<UserResult>, token?: string) => void;
   onRedirect?: () => void;
   redirectTo?: string;
   appName?: string;

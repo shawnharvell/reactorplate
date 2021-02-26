@@ -1,47 +1,92 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 
 import Banner from "./banner";
-import MainView from "./main-view";
 import Tags from "./tags";
-import agent from "../../agent";
-import { HOME_PAGE_LOADED, HOME_PAGE_UNLOADED, APPLY_TAG_FILTER } from "../../constants/action-types";
+import agent, { ArticleListResult } from "../../agent";
 import * as Types from "../../reducers/types";
+import ArticleList from "../article-list";
 
-const { Promise } = global;
-
-const mapStateToProps = (state: any) => ({
-  ...state.home,
+const mapStateToProps = (state: { common: { appName: string; token: string } }) => ({
   appName: state.common.appName,
   token: state.common.token,
-});
-
-const mapDispatchToProps = (dispatch: any) => ({
-  onClickTag: (tag: string, pager: any, payload: any) => dispatch({ type: APPLY_TAG_FILTER, tag, pager, payload }),
-  onLoad: (tab: string, pager: any, payload: any) => dispatch({ type: HOME_PAGE_LOADED, tab, pager, payload }),
-  onUnload: () => dispatch({ type: HOME_PAGE_UNLOADED }),
 });
 
 export interface HomeProps {
   token?: string;
   appName: string;
-  tags: Types.Tag[];
-  onClickTag?: (tag: string, pager: any, payload: any) => void;
-  onLoad?: (tab: string, pager: any, payload: any) => void;
-  onUnload?: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({ token, appName, tags, onClickTag, onLoad, onUnload }) => {
-  useEffect(() => {
-    const tab = token ? "feed" : "all";
-    const articlesPromise = token ? agent.Articles.feed : agent.Articles.all;
+const Home: React.FC<HomeProps> = ({ token, appName }) => {
+  const [articles, setArticles] = useState<Types.Article[]>([]);
+  const [count, setCount] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [tab, setTab] = useState<string>(token ? "feed" : "all");
+  const [tag, setTag] = useState<string>("");
+  const [tagList, setTagList] = useState<Types.Tag[]>([]);
 
-    onLoad(tab, articlesPromise, Promise.all([agent.Tags.getAll(), articlesPromise()]));
+  useEffect(() => {
+    let isArticleLoadCanceled = false;
+    (async () => {
+      setLoading(true);
+      let results: ArticleListResult;
+      switch (tab) {
+        case "feed":
+          results = await agent.Articles.feed(currentPage);
+          break;
+        case "tag":
+          results = await agent.Articles.byTag(tag, currentPage);
+          break;
+        default:
+          results = await agent.Articles.all(currentPage);
+          break;
+      }
+      if (!isArticleLoadCanceled && results) {
+        if (!results.errors) {
+          setArticles(results.articles);
+          setCount(results.articlesCount);
+        }
+      }
+      setLoading(false);
+    })();
 
     return () => {
-      onUnload();
+      isArticleLoadCanceled = true;
+    };
+  }, [tab, token, tag, currentPage]);
+
+  useEffect(() => {
+    let isTagLoadCanceled = false;
+
+    (async () => {
+      const results = await agent.Tags.getAll();
+      if (!isTagLoadCanceled) {
+        if (!results.errors) {
+          setTagList(results.tags);
+        }
+      }
+    })();
+
+    return () => {
+      isTagLoadCanceled = true;
     };
   }, []);
+
+  const onFavoriteChange = (article: Types.Article) => {
+    setArticles((previous) =>
+      previous.map((art) => {
+        if (art.slug === article.slug) {
+          return {
+            ...article,
+            favorited: article.favorited,
+            favoritesCount: article.favoritesCount,
+          };
+        }
+        return art;
+      })
+    );
+  };
 
   return (
     <div className="home-page">
@@ -49,13 +94,69 @@ const Home: React.FC<HomeProps> = ({ token, appName, tags, onClickTag, onLoad, o
 
       <div className="container page">
         <div className="row">
-          <MainView />
+          <div className="col-md-9">
+            <div className="feed-toggle">
+              <ul className="nav nav-pills outline-active">
+                {!!token && (
+                  <li className="nav-item">
+                    <a
+                      href="#"
+                      className={tab === "feed" ? "nav-link active" : "nav-link"}
+                      onClick={() => {
+                        setTab("feed");
+                        setTag("");
+                      }}
+                    >
+                      Your Feed
+                    </a>
+                  </li>
+                )}
+
+                <li className="nav-item">
+                  <a
+                    href="#"
+                    className={tab === "all" ? "nav-link active" : "nav-link"}
+                    onClick={() => {
+                      setTab("all");
+                      setTag("");
+                    }}
+                  >
+                    Global Feed
+                  </a>
+                </li>
+
+                {!!tag && tab === "tag" && (
+                  <li className="nav-item">
+                    <a href="" className="nav-link active">
+                      <i className="ion-pound" /> {tag}
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            <ArticleList
+              articles={articles}
+              loading={loading}
+              articlesCount={count}
+              currentPage={currentPage}
+              onSetPage={(page?: number) => setCurrentPage(page)}
+              onFavorited={onFavoriteChange}
+              onUnfavorited={onFavoriteChange}
+            />
+          </div>
 
           <div className="col-md-3">
             <div className="sidebar">
               <p>Popular Tags</p>
 
-              <Tags tags={tags} onClickTag={onClickTag} />
+              <Tags
+                tags={tagList}
+                onClickTag={(newtag: string) => {
+                  setTag(newtag);
+                  setTab("tag");
+                }}
+              />
             </div>
           </div>
         </div>
@@ -64,4 +165,4 @@ const Home: React.FC<HomeProps> = ({ token, appName, tags, onClickTag, onLoad, o
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Home);
+export default connect(mapStateToProps)(Home);

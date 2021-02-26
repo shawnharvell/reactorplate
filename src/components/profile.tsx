@@ -60,12 +60,11 @@ const mapStateToProps = (state: { common: { currentUser: Types.User } }) => ({
 });
 
 export interface ProfileProps {
-  pager?: any;
   currentPage?: number;
   currentUser?: Types.User;
 }
 
-const Profile: React.FC<ProfileProps> = ({ pager, currentPage, currentUser }) => {
+const Profile: React.FC<ProfileProps> = ({ currentPage, currentUser }) => {
   const { username } = useParams<{ username: string }>();
   const { path } = useRouteMatch();
   const tab = path?.endsWith("favorites") ? "favorites" : "authored";
@@ -172,7 +171,6 @@ const Profile: React.FC<ProfileProps> = ({ pager, currentPage, currentUser }) =>
             </div>
 
             <ArticleList
-              pager={pager}
               articles={articles}
               articlesCount={articlesCount}
               currentPage={currentPage}

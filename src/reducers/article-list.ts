@@ -12,11 +12,10 @@ import {
   PROFILE_FAVORITES_PAGE_UNLOADED,
 } from "../constants/action-types";
 
-import { ArticleState } from "./article";
 import * as Types from "./types";
 
 export interface ArticleListState {
-  articles?: ArticleState[];
+  articles?: Types.Article[];
   articlesCount?: number;
   currentPage?: number;
   pager?: unknown;
@@ -31,6 +30,7 @@ export interface ArticleListAction {
   tag?: Types.Tag;
   tab?: string;
   pager?: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any;
 }
 

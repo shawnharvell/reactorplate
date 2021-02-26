@@ -1,11 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import classnames from "classnames";
 
 import agent from "../agent";
 import * as Types from "../reducers/types";
-
-const FAVORITED_CLASS = "btn btn-sm btn-primary";
-const NOT_FAVORITED_CLASS = "btn btn-sm btn-outline-primary";
 
 export interface ArticlePreviewProps {
   article?: Types.Article;
@@ -14,8 +12,6 @@ export interface ArticlePreviewProps {
 }
 
 const ArticlePreview: React.FC<ArticlePreviewProps> = ({ article, onFavorited, onUnfavorited }) => {
-  const favoriteButtonClass = article.favorited ? FAVORITED_CLASS : NOT_FAVORITED_CLASS;
-
   const handleClick = async (ev: React.MouseEvent) => {
     ev.preventDefault();
     if (article.favorited) {
@@ -46,7 +42,14 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ article, onFavorited, o
         </div>
 
         <div className="pull-xs-right">
-          <button type="button" className={favoriteButtonClass} onClick={handleClick}>
+          <button
+            type="button"
+            className={classnames("btn btn-sm", {
+              "btn-primary": article.favorited,
+              "btn-outline-primary": !article.favorited,
+            })}
+            onClick={handleClick}
+          >
             <i className="ion-heart" /> {article.favoritesCount}
           </button>
         </div>
