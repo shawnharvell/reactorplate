@@ -2,8 +2,18 @@ import React from "react";
 
 import ArticlePreview from "./article-preview";
 import ListPagination from "./list-pagination";
+import * as Types from "../reducers/types";
+import { ArticleListResult } from "../agent";
 
-const ArticleList = ({ articles, pager, articlesCount, currentPage, loading }) => {
+export interface ArticleListProps {
+  articles?: Types.Article[];
+  pager?: (page: number) => Promise<ArticleListResult>;
+  articlesCount?: number;
+  currentPage?: number;
+  loading?: boolean;
+}
+
+const ArticleList: React.FC<ArticleListProps> = ({ articles, pager, articlesCount, currentPage, loading }) => {
   if (!articles || loading) {
     return <div className="article-preview">Loading...</div>;
   }

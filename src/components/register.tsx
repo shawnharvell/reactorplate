@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import ListErrors from "./list-errors";
 import agent from "../agent";
 import { UPDATE_FIELD_AUTH, REGISTER, REGISTER_PAGE_UNLOADED } from "../constants/action-types";
+import * as Types from "../reducers/types";
 
 const mapStateToProps = (state) => ({ ...state.auth });
 
@@ -19,7 +20,20 @@ const mapDispatchToProps = (dispatch) => ({
   onUnload: () => dispatch({ type: REGISTER_PAGE_UNLOADED }),
 });
 
-const Register = ({
+export interface RegisterProps {
+  onChangeEmail?: (value) => void;
+  onChangePassword?: (value) => void;
+  onChangeUsername?: (value) => void;
+  onSubmit?: (username, email, password) => void;
+  onUnload?: () => void;
+  email?: string;
+  password?: string;
+  username?: string;
+  inProgress: boolean;
+  errors?: Types.Errors;
+}
+
+const Register: React.FC<RegisterProps> = ({
   onChangeEmail,
   onChangePassword,
   onChangeUsername,
@@ -39,7 +53,7 @@ const Register = ({
     onSubmit(newusername, newemail, newpassword);
   };
 
-  useEffect(() => onUnload());
+  useEffect(() => onUnload(), []);
 
   return (
     <div className="auth-page">

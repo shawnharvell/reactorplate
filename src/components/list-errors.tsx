@@ -1,12 +1,19 @@
 import React from "react";
 
-const ListErrors = ({ errors }) => {
+import * as Types from "../reducers/types";
+
+export interface ListErrorsProps {
+  errors?: Types.Errors;
+}
+
+const ListErrors: React.FC<ListErrorsProps> = ({ errors }) => {
   if (errors) {
     return (
       <ul className="error-messages">
         {Object.keys(errors).map((key) => (
           <li key={key}>
             {key}
+            &nbsp;
             {errors[key]}
           </li>
         ))}

@@ -13,12 +13,32 @@ import {
 } from "../constants/action-types";
 
 import { ArticleState } from "./article";
+import * as Types from "./types";
 
 export interface ArticleListState {
   articles?: ArticleState[];
+  articlesCount?: number;
+  currentPage?: number;
+  pager?: unknown;
+  tags?: Types.Tag[];
+  tab?: string;
+  tag?: string;
 }
 
-export default (state: ArticleListState = {}, action) => {
+export interface ArticleListAction {
+  type?: string;
+  page?: number;
+  tag?: Types.Tag;
+  tab?: string;
+  pager?: unknown;
+  payload: {
+    article?: Types.Article;
+    articles?: Types.Article[];
+    articlesCount?: number;
+  };
+}
+
+export default (state: ArticleListState = {}, action: ArticleListAction): ArticleListState => {
   switch (action.type) {
     case ARTICLE_FAVORITED:
     case ARTICLE_UNFAVORITED:

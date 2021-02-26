@@ -1,6 +1,13 @@
 import { PROFILE_PAGE_LOADED, PROFILE_PAGE_UNLOADED, FOLLOW_USER, UNFOLLOW_USER } from "../constants/action-types";
 
-export default (state = {}, action: any): unknown => {
+export interface ProfileAction {
+  type: string;
+  payload: {
+    profile: Record<string, unknown>;
+  };
+}
+
+export default (state = {}, action: ProfileAction): unknown => {
   switch (action.type) {
     case PROFILE_PAGE_LOADED:
       return {

@@ -7,13 +7,27 @@ import {
   REMOVE_TAG,
   UPDATE_FIELD_EDITOR,
 } from "../constants/action-types";
+import * as Types from "./types";
 
 export interface EditorState {
   tagList?: string[];
   tagInput?: string;
 }
 
-export default (state: EditorState = {}, action: any): unknown => {
+export interface EditorAction {
+  type: string;
+  subtype: string;
+  error: boolean;
+  tag: Types.Tag;
+  key: string;
+  value: string;
+  payload: {
+    article: Types.Article;
+    errors?: Types.Errors;
+  };
+}
+
+export default (state: EditorState = {}, action: EditorAction): unknown => {
   switch (action.type) {
     case EDITOR_PAGE_LOADED:
       return {

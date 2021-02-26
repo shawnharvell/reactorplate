@@ -1,25 +1,39 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
 import marked from "marked";
+import { Dispatch } from "redux";
+import { useParams } from "react-router-dom";
 
 import ArticleMeta from "./article-meta";
 import CommentContainer from "./comment-container";
 import agent from "../../agent";
 import { ARTICLE_PAGE_LOADED, ARTICLE_PAGE_UNLOADED } from "../../constants/action-types";
+import * as Types from "../../reducers/types";
 
 const mapStateToProps = (state) => ({
   ...state.article,
   currentUser: state.common.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   onLoad: (payload) => dispatch({ type: ARTICLE_PAGE_LOADED, payload }),
   onUnload: () => dispatch({ type: ARTICLE_PAGE_UNLOADED }),
 });
 
-const Article = ({ onLoad, onUnload, match, article, currentUser, comments, commentErrors }) => {
+export interface ArticleProps {
+  onLoad?: (payload) => void;
+  onUnload?: () => void;
+  article?: Types.Article;
+  currentUser?: Types.User;
+  comments?: Types.Comment[];
+  commentErrors?: Types.Errors;
+}
+
+const Article: React.FC<ArticleProps> = ({ onLoad, onUnload, article, currentUser, comments, commentErrors }) => {
+  const { id: slug = undefined } = useParams<{ id: string }>();
+
   useEffect(() => {
-    onLoad(Promise.all([agent.Articles.get(match.params.id), agent.Comments.forArticle(match.params.id)]));
+    onLoad(Promise.all([agent.Articles.get(slug), agent.Comments.forArticle(slug)]));
 
     return () => {
       onUnload();
@@ -62,12 +76,7 @@ const Article = ({ onLoad, onUnload, match, article, currentUser, comments, comm
         <div className="article-actions" />
 
         <div className="row">
-          <CommentContainer
-            comments={comments || []}
-            errors={commentErrors}
-            slug={match.params.id}
-            currentUser={currentUser}
-          />
+          <CommentContainer comments={comments || []} errors={commentErrors} slug={slug} currentUser={currentUser} />
         </div>
       </div>
     </div>

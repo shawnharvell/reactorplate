@@ -1,8 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const LoggedOutView = (props) => {
-  if (!props.currentUser) {
+import * as Types from "../reducers/types";
+
+export interface LoggedOutViewProps {
+  currentUser?: Types.User;
+}
+const LoggedOutView: React.FC<LoggedOutViewProps> = ({ currentUser }) => {
+  if (!currentUser) {
     return (
       <ul className="nav navbar-nav pull-xs-right">
         <li className="nav-item">
@@ -28,8 +33,11 @@ const LoggedOutView = (props) => {
   return null;
 };
 
-const LoggedInView = (props) => {
-  if (props.currentUser) {
+export interface LoggedInViewProps {
+  currentUser?: Types.User;
+}
+const LoggedInView: React.FC<LoggedInViewProps> = ({ currentUser }) => {
+  if (currentUser) {
     return (
       <ul className="nav navbar-nav pull-xs-right">
         <li className="nav-item">
@@ -53,9 +61,9 @@ const LoggedInView = (props) => {
         </li>
 
         <li className="nav-item">
-          <Link to={`/@${props.currentUser.username}`} className="nav-link">
-            <img src={props.currentUser.image} className="user-pic" alt={props.currentUser.username} />
-            {props.currentUser.username}
+          <Link to={`/@${currentUser.username}`} className="nav-link">
+            <img src={currentUser.image} className="user-pic" alt="" role="presentation" />
+            {currentUser.username}
           </Link>
         </li>
       </ul>
@@ -65,7 +73,11 @@ const LoggedInView = (props) => {
   return null;
 };
 
-const Header = ({ appName, currentUser }) => (
+export interface HeaderProps {
+  currentUser?: Types.User;
+  appName: string;
+}
+const Header: React.FC<HeaderProps> = ({ appName, currentUser }) => (
   <nav className="navbar navbar-light">
     <div className="container">
       <Link to="/" className="navbar-brand">

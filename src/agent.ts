@@ -1,64 +1,99 @@
-import superagentPromise from "superagent-promise";
-import _superagent from "superagent";
+import superagent from "superagent";
 
-const superagent = superagentPromise(_superagent, global.Promise);
+import * as Types from "./reducers/types";
 
 const API_ROOT = "https://conduit.productionready.io/api";
 
 const encode = encodeURIComponent;
 const responseBody = (res) => res.body;
 
-let token = null;
+let token: string = null;
 const tokenPlugin = (req) => {
   if (token) {
     req.set("authorization", `Token ${token}`);
   }
 };
 
+export interface ArticleListResult {
+  articles?: Types.Article[];
+  articlesCount?: number;
+}
+
+export interface ArticleResult {
+  article: Types.Article;
+}
+
+export interface CommentListResult {
+  comments: Types.Comment[];
+}
+
+export interface UserResult {
+  user: Types.User;
+}
+
+export interface TagListResult {
+  tags: Types.Tag[];
+}
+
+export interface ProfileResult {
+  profile: Types.Profile;
+}
+
+export interface CommentResult {
+  comment: Types.Comment;
+}
+
 const requests = {
-  del: (url) => superagent.del(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody),
-  get: (url) => superagent.get(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody),
-  put: (url, body) => superagent.put(`${API_ROOT}${url}`, body).use(tokenPlugin).then(responseBody),
-  post: (url, body) => superagent.post(`${API_ROOT}${url}`, body).use(tokenPlugin).then(responseBody),
+  del: (url: string) => superagent.del(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody),
+  get: (url: string) => superagent.get(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody),
+  put: (url: string, body: string | Record<string, unknown>) =>
+    superagent.put(`${API_ROOT}${url}`).send(body).use(tokenPlugin).then(responseBody),
+  post: (url: string, body: string | Record<string, unknown>) =>
+    superagent.post(`${API_ROOT}${url}`).send(body).use(tokenPlugin).then(responseBody),
 };
 
 const Auth = {
-  current: () => requests.get("/user"),
-  login: (email, password) => requests.post("/users/login", { user: { email, password } }),
-  register: (username, email, password) => requests.post("/users", { user: { username, email, password } }),
-  save: (user) => requests.put("/user", { user }),
+  current: (): Promise<UserResult> => requests.get("/user"),
+  login: (email: string, password: string): Promise<UserResult> =>
+    requests.post("/users/login", { user: { email, password } }),
+  register: (username: string, email: string, password: string): Promise<UserResult> =>
+    requests.post("/users", { user: { username, email, password } }),
+  save: (user): Promise<UserResult> => requests.put("/user", { user }),
 };
 
 const Tags = {
-  getAll: () => requests.get("/tags"),
+  getAll: (): Promise<TagListResult> => requests.get("/tags"),
 };
 
-const limit = (count, p) => `limit=${count}&offset=${p ? p * count : 0}`;
-const omitSlug = (article) => ({ ...article, slug: undefined });
+const limit = (count: number, p: number) => `limit=${count}&offset=${p ? p * count : 0}`;
+const omitSlug = (article: Types.Article) => ({ ...article, slug: undefined });
 const Articles = {
-  all: (page?) => requests.get(`/articles?${limit(10, page)}`),
-  byAuthor: (author, page?) => requests.get(`/articles?author=${encode(author)}&${limit(5, page)}`),
-  byTag: (tag, page?) => requests.get(`/articles?tag=${encode(tag)}&${limit(10, page)}`),
-  del: (slug) => requests.del(`/articles/${slug}`),
-  favorite: (slug) => requests.post(`/articles/${slug}/favorite`, {}),
-  favoritedBy: (author, page?) => requests.get(`/articles?favorited=${encode(author)}&${limit(5, page)}`),
-  feed: () => requests.get("/articles/feed?limit=10&offset=0"),
-  get: (slug) => requests.get(`/articles/${slug}`),
-  unfavorite: (slug) => requests.del(`/articles/${slug}/favorite`),
-  update: (article) => requests.put(`/articles/${article.slug}`, { article: omitSlug(article) }),
-  create: (article) => requests.post("/articles", { article }),
+  all: (page?: number): Promise<ArticleListResult> => requests.get(`/articles?${limit(10, page)}`),
+  byAuthor: (author, page?): Promise<ArticleListResult> =>
+    requests.get(`/articles?author=${encode(author)}&${limit(5, page)}`),
+  byTag: (tag, page?): Promise<ArticleListResult> => requests.get(`/articles?tag=${encode(tag)}&${limit(10, page)}`),
+  del: (slug: Types.Slug): Promise<ArticleResult> => requests.del(`/articles/${slug}`),
+  favorite: (slug: Types.Slug): Promise<ArticleResult> => requests.post(`/articles/${slug}/favorite`, {}),
+  favoritedBy: (author, page?): Promise<ArticleListResult> =>
+    requests.get(`/articles?favorited=${encode(author)}&${limit(5, page)}`),
+  feed: (): Promise<ArticleListResult> => requests.get("/articles/feed?limit=10&offset=0"),
+  get: (slug): Promise<ArticleResult> => requests.get(`/articles/${slug}`),
+  unfavorite: (slug: Types.Slug): Promise<ArticleResult> => requests.del(`/articles/${slug}/favorite`),
+  update: (article: Types.Article): Promise<ArticleResult> =>
+    requests.put(`/articles/${article.slug}`, { article: omitSlug(article) }),
+  create: (article: Types.Article): Promise<ArticleResult> => requests.post("/articles", { article }),
 };
 
 const Comments = {
-  create: (slug, comment) => requests.post(`/articles/${slug}/comments`, { comment }),
-  delete: (slug, commentId) => requests.del(`/articles/${slug}/comments/${commentId}`),
-  forArticle: (slug) => requests.get(`/articles/${slug}/comments`),
+  create: (slug, comment): Promise<CommentResult> => requests.post(`/articles/${slug}/comments`, { comment }),
+  delete: (slug, commentId): Promise<CommentResult> => requests.del(`/articles/${slug}/comments/${commentId}`),
+  forArticle: (slug): Promise<CommentListResult> => requests.get(`/articles/${slug}/comments`),
 };
 
 const Profile = {
-  follow: (username) => requests.post(`/profiles/${username}/follow`, {}),
-  get: (username) => requests.get(`/profiles/${username}`),
-  unfollow: (username) => requests.del(`/profiles/${username}/follow`),
+  follow: (username: string): Promise<ProfileResult> => requests.post(`/profiles/${username}/follow`, {}),
+  get: (username: string): Promise<ProfileResult> => requests.get(`/profiles/${username}`),
+  unfollow: (username: string): Promise<ProfileResult> => requests.del(`/profiles/${username}/follow`),
 };
 
 export default {
@@ -67,7 +102,7 @@ export default {
   Comments,
   Profile,
   Tags,
-  setToken: (_token) => {
+  setToken: (_token: string): void => {
     token = _token;
   },
 };

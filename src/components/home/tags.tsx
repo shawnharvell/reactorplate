@@ -1,7 +1,14 @@
 import React from "react";
 import agent from "../../agent";
 
-const Tags = ({ tags, onClickTag }) => {
+import * as Types from "../../reducers/types";
+
+export interface TagsProps {
+  tags?: Types.Tag[];
+  onClickTag?: (tag, pager, payload) => void;
+}
+
+const Tags: React.FC<TagsProps> = ({ tags, onClickTag }) => {
   if (tags) {
     return (
       <div className="tag-list">

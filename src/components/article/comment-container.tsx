@@ -1,10 +1,19 @@
-import { Link } from "react-router-dom";
 import React from "react";
+import { Link } from "react-router-dom";
+
 import CommentInput from "./comment-input";
 import CommentList from "./comment-list";
 import ListErrors from "../list-errors";
+import * as Types from "../../reducers/types";
 
-const CommentContainer = ({ currentUser, errors, slug, comments }) => {
+export interface CommentContainerProps {
+  currentUser?: Types.User;
+  errors?: Types.Errors;
+  slug?: Types.Slug;
+  comments?: Types.Comment[];
+}
+
+const CommentContainer: React.FC<CommentContainerProps> = ({ currentUser, errors, slug, comments }) => {
   if (currentUser) {
     return (
       <div className="col-xs-12 col-md-8 offset-md-2">

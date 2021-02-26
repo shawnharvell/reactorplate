@@ -1,8 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import ArticleActions from "./article-actions";
 
-const ArticleMeta = ({ article, canModify }) => (
+import ArticleActions from "./article-actions";
+import * as Types from "../../reducers/types";
+
+export interface ArticleMetaProps {
+  article?: Types.Article;
+  canModify?: boolean;
+}
+
+const ArticleMeta: React.FC<ArticleMetaProps> = ({ article, canModify }) => (
   <div className="article-meta">
     <Link to={`/@${article.author.username}`}>
       <img src={article.author.image} alt={article.author.username} />

@@ -6,8 +6,25 @@ import {
   ASYNC_START,
   UPDATE_FIELD_AUTH,
 } from "../constants/action-types";
+import * as Types from "./types";
 
-export default (state = {}, action) => {
+export interface AuthState {
+  inProgress?: boolean;
+  errors?: Types.Errors;
+}
+
+export interface AuthAction {
+  type?: string;
+  subtype?: string;
+  error?: boolean;
+  key?: string;
+  value?: string;
+  payload: {
+    errors?: Types.Errors;
+  };
+}
+
+export default (state: AuthState = {}, action: AuthAction): AuthState => {
   switch (action.type) {
     case LOGIN:
     case REGISTER:

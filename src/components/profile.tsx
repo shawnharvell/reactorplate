@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { connect } from "react-redux";
+import classnames from "classnames";
 
 import ArticleList from "./article-list";
 import agent from "../agent";
-import { FOLLOW_USER, UNFOLLOW_USER, PROFILE_PAGE_LOADED, PROFILE_PAGE_UNLOADED } from "../constants/action-types";
+import { FOLLOW_USER, UNFOLLOW_USER } from "../constants/action-types";
+import * as Types from "../reducers/types";
 
-const EditProfileSettings = ({ isUser }) => {
+const EditProfileSettings: React.FC<{ isUser: boolean }> = ({ isUser }) => {
   if (isUser) {
     return (
       <Link to="/settings" className="btn btn-sm btn-outline-secondary action-btn">
@@ -17,7 +19,14 @@ const EditProfileSettings = ({ isUser }) => {
   return null;
 };
 
-const FollowUserButton = ({ isUser, user, follow, unfollow }) => {
+export interface FollowUserButtonProps {
+  isUser: boolean;
+  user?: Types.Profile;
+  follow?: (username: string) => void;
+  unfollow?: (username: string) => void;
+}
+
+const FollowUserButton: React.FC<FollowUserButtonProps> = ({ isUser, user, follow, unfollow }) => {
   if (isUser) {
     return null;
   }
@@ -48,9 +57,7 @@ const FollowUserButton = ({ isUser, user, follow, unfollow }) => {
 };
 
 const mapStateToProps = (state) => ({
-  ...state.articleList,
   currentUser: state.common.currentUser,
-  profile: state.profile,
 });
 
 const mapDispatchToProps = (dispatch) => ({
@@ -59,41 +66,59 @@ const mapDispatchToProps = (dispatch) => ({
       type: FOLLOW_USER,
       payload: agent.Profile.follow(username),
     }),
-  onLoad: (payload) => dispatch({ type: PROFILE_PAGE_LOADED, payload }),
   onUnfollow: (username) =>
     dispatch({
       type: UNFOLLOW_USER,
       payload: agent.Profile.unfollow(username),
     }),
-  onUnload: () => dispatch({ type: PROFILE_PAGE_UNLOADED }),
 });
 
-const Profile = ({
-  match,
-  profile,
-  pager,
-  articles,
-  articlesCount,
-  currentPage,
-  currentUser,
-  onLoad,
-  onUnload,
-  onFollow,
-  onUnfollow,
-}) => {
-  const [loading, setLoading] = useState(false);
+const Profile = ({ pager, currentPage, currentUser, onFollow, onUnfollow }) => {
+  const { username } = useParams<{ username: string }>();
+  const { path } = useRouteMatch();
+  const tab = path?.endsWith("favorites") ? "favorites" : "authored";
+
+  const [profileLoading, setProfileLoading] = useState(false);
+  const [articlesLoading, setArticlesLoading] = useState(false);
+  const [profile, setProfile] = useState<Types.Profile>();
+  const [articles, setArticles] = useState<Types.Article[]>();
+  const [articlesCount, setArticlesCount] = useState<number>(0);
 
   useEffect(() => {
-    setLoading(true);
-    onLoad(
-      Promise.all([
-        agent.Profile.get(match.params.username),
-        agent.Articles.byAuthor(match.params.username),
-      ]).finally(() => setLoading(false))
-    );
+    let profileLoadCanceled = false;
 
-    return () => onUnload();
-  }, []);
+    setProfileLoading(true);
+    (async () => {
+      const profileResults = await agent.Profile.get(username);
+      if (!profileLoadCanceled) {
+        setProfile(profileResults.profile);
+        setProfileLoading(false);
+      }
+    })();
+
+    return () => {
+      profileLoadCanceled = true;
+    };
+  }, [username]);
+
+  useEffect(() => {
+    let articleLoadCanceled = false;
+
+    setArticlesLoading(true);
+    (async () => {
+      const articleResults =
+        tab === "authored" ? await agent.Articles.byAuthor(username) : await agent.Articles.favoritedBy(username);
+      if (!articleLoadCanceled) {
+        setArticles(articleResults.articles);
+        setArticlesCount(articleResults.articlesCount);
+        setArticlesLoading(false);
+      }
+    })();
+
+    return () => {
+      articleLoadCanceled = true;
+    };
+  }, [username, tab]);
 
   if (!profile) {
     return null;
@@ -101,13 +126,17 @@ const Profile = ({
 
   const isUser = currentUser && profile.username === currentUser.username;
 
+  if (profileLoading) {
+    return null;
+  }
+
   return (
     <div className="profile-page">
       <div className="user-info">
         <div className="container">
           <div className="row">
             <div className="col-xs-12 col-md-10 offset-md-1">
-              <img src={profile.image} className="user-img" alt={profile.username} />
+              <img src={profile.image} className="user-img" alt="" role="presentation" />
               <h4>{profile.username}</h4>
               <p>{profile.bio}</p>
 
@@ -124,13 +153,16 @@ const Profile = ({
             <div className="articles-toggle">
               <ul className="nav nav-pills outline-active">
                 <li className="nav-item">
-                  <Link className="nav-link active" to={`/@${profile.username}`}>
+                  <Link className={classnames("nav-link", { active: tab === "authored" })} to={`/@${profile.username}`}>
                     My Articles
                   </Link>
                 </li>
 
                 <li className="nav-item">
-                  <Link className="nav-link" to={`/@${profile.username}/favorites`}>
+                  <Link
+                    className={classnames("nav-link", { active: tab === "favorites" })}
+                    to={`/@${profile.username}/favorites`}
+                  >
                     Favorited Articles
                   </Link>
                 </li>
@@ -142,7 +174,7 @@ const Profile = ({
               articles={articles}
               articlesCount={articlesCount}
               currentPage={currentPage}
-              loading={loading}
+              loading={articlesLoading}
             />
           </div>
         </div>

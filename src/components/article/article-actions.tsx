@@ -1,14 +1,22 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+
 import agent from "../../agent";
 import { DELETE_ARTICLE } from "../../constants/action-types";
+import * as Types from "../../reducers/types";
 
 const mapDispatchToProps = (dispatch) => ({
   onClickDelete: (payload) => dispatch({ type: DELETE_ARTICLE, payload }),
 });
 
-const ArticleActions = ({ article, canModify, onClickDelete }) => {
+export interface ArticleActionsProps {
+  article?: Types.Article;
+  canModify?: boolean;
+  onClickDelete?: (payload) => void;
+}
+
+const ArticleActions: React.FC<ArticleActionsProps> = ({ article, canModify, onClickDelete }) => {
   const del = () => {
     onClickDelete(agent.Articles.del(article.slug));
   };

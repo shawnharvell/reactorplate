@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 
 import agent from "../agent";
 import { ARTICLE_FAVORITED, ARTICLE_UNFAVORITED } from "../constants/action-types";
+import * as Types from "../reducers/types";
 
 const FAVORITED_CLASS = "btn btn-sm btn-primary";
 const NOT_FAVORITED_CLASS = "btn btn-sm btn-outline-primary";
@@ -21,7 +22,13 @@ const mapDispatchToProps = (dispatch) => ({
     }),
 });
 
-const ArticlePreview = ({ article, unfavorite, favorite }) => {
+export interface ArticlePreviewProps {
+  article?: Types.Article;
+  favorite?: (slug: Types.Slug) => void;
+  unfavorite?: (slug: Types.Slug) => void;
+}
+
+const ArticlePreview: React.FC<ArticlePreviewProps> = ({ article, unfavorite, favorite }) => {
   const favoriteButtonClass = article.favorited ? FAVORITED_CLASS : NOT_FAVORITED_CLASS;
 
   const handleClick = (ev) => {

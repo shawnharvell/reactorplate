@@ -10,9 +10,9 @@ import Editor from "./editor";
 import Home from "./home";
 import Login from "./login";
 import Profile from "./profile";
-import ProfileFavorites from "./profile-favorites";
 import Register from "./register";
 import Settings from "./settings";
+import * as Types from "../reducers/types";
 
 const mapStateToProps = (state) => ({
   appLoaded: state.common.appLoaded,
@@ -26,7 +26,16 @@ const mapDispatchToProps = (dispatch) => ({
   onRedirect: () => dispatch({ type: REDIRECT }),
 });
 
-const App = ({ onLoad, onRedirect, redirectTo, appName, currentUser, appLoaded }) => {
+export interface AppProps {
+  onLoad?: (payload, token?: string) => void;
+  onRedirect?: () => void;
+  redirectTo?: string;
+  appName?: string;
+  currentUser?: Types.User;
+  appLoaded?: boolean;
+}
+
+const App: React.FC<AppProps> = ({ onLoad, onRedirect, redirectTo, appName, currentUser, appLoaded }) => {
   const history = useHistory();
   useEffect(() => {
     const token = window.localStorage.getItem("jwt");
@@ -56,7 +65,7 @@ const App = ({ onLoad, onRedirect, redirectTo, appName, currentUser, appLoaded }
           <Route path="/editor" component={Editor} />
           <Route path="/article/:id" component={Article} />
           <Route path="/settings" component={Settings} />
-          <Route path="/@:username/favorites" component={ProfileFavorites} />
+          <Route path="/@:username/favorites" component={Profile} />
           <Route path="/@:username" component={Profile} />
         </Switch>
       </div>

@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import ListErrors from "./list-errors";
 import agent from "../agent";
 import { UPDATE_FIELD_AUTH, LOGIN, LOGIN_PAGE_UNLOADED } from "../constants/action-types";
+import * as Types from "../reducers/types";
 
 const mapStateToProps = (state) => ({ ...state.auth });
 
@@ -15,7 +16,27 @@ const mapDispatchToProps = (dispatch) => ({
   onUnload: () => dispatch({ type: LOGIN_PAGE_UNLOADED }),
 });
 
-const Login = ({ email, password, inProgress, errors, onChangeEmail, onChangePassword, onSubmit, onUnload }) => {
+export interface LoginProps {
+  email?: string;
+  password?: string;
+  inProgress: boolean;
+  errors?: Types.Errors;
+  onChangeEmail?: (value) => void;
+  onChangePassword?: (value) => void;
+  onSubmit?: (email, password) => void;
+  onUnload?: () => void;
+}
+
+const Login: React.FC<LoginProps> = ({
+  email,
+  password,
+  inProgress,
+  errors,
+  onChangeEmail,
+  onChangePassword,
+  onSubmit,
+  onUnload,
+}) => {
   const changeEmail = (ev) => onChangeEmail(ev.target.value);
   const changePassword = (ev) => onChangePassword(ev.target.value);
   const submitForm = (newemail, newpassword) => (ev) => {
@@ -23,7 +44,7 @@ const Login = ({ email, password, inProgress, errors, onChangeEmail, onChangePas
     onSubmit(newemail, newpassword);
   };
 
-  useEffect(() => () => onUnload(), []);
+  useEffect(() => onUnload(), []);
 
   return (
     <div className="auth-page">

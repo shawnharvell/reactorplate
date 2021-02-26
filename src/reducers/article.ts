@@ -1,11 +1,24 @@
 import { ARTICLE_PAGE_LOADED, ARTICLE_PAGE_UNLOADED, ADD_COMMENT, DELETE_COMMENT } from "../constants/action-types";
+import * as Types from "./types";
 
 export interface ArticleState {
   slug?: string;
-  comments?: { id: string }[];
+  comments?: Types.Comment[];
+  article?: Types.Article;
+  commentErrors?: Types.Errors;
 }
 
-export default (state: ArticleState = {}, action) => {
+export interface ArticleAction {
+  type?: string;
+  error?: boolean;
+  commentId?: number;
+  payload: {
+    errors?: Types.Errors;
+    comment?: Types.Comment;
+  };
+}
+
+export default (state: ArticleState = {}, action: ArticleAction): ArticleState => {
   switch (action.type) {
     case ARTICLE_PAGE_LOADED:
       return {

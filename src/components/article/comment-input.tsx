@@ -3,22 +3,32 @@ import { connect } from "react-redux";
 
 import agent from "../../agent";
 import { ADD_COMMENT } from "../../constants/action-types";
+import * as Types from "../../reducers/types";
 
 const mapDispatchToProps = (dispatch) => ({
   onSubmit: (payload) => dispatch({ type: ADD_COMMENT, payload }),
 });
 
-const CommentInput = ({ slug, onSubmit, currentUser }) => {
+export interface CommentInputProps {
+  slug?: Types.Slug;
+  currentUser?: Types.User;
+  onSubmit?: (payload) => void;
+}
+
+const CommentInput: React.FC<CommentInputProps> = ({ slug, onSubmit, currentUser }) => {
   const [body, setBody] = useState<string>("");
+
   const onChange = (ev) => {
     setBody(ev.target.value);
   };
+
   const createComment = (ev) => {
     ev.preventDefault();
     const payload = agent.Comments.create(slug, { body });
     setBody("");
     onSubmit(payload);
   };
+
   return (
     <form className="card comment-form" onSubmit={createComment}>
       <div className="card-block">

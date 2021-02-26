@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import React from "react";
-import { BrowserRouter } from "react-router-dom";
+import { HashRouter } from "react-router-dom";
 
 import App from "./components/App";
 import { store } from "./store";
@@ -14,9 +14,9 @@ if (process.env.NODE_ENV !== "production") {
 
 ReactDOM.render(
   <Provider store={store}>
-    <BrowserRouter>
+    <HashRouter>
       <App />
-    </BrowserRouter>
+    </HashRouter>
   </Provider>,
 
   document.querySelector("#app-mountpoint")

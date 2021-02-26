@@ -1,6 +1,11 @@
 import React from "react";
 
-const Banner = ({ appName, token }) => {
+export interface BannerProps {
+  appName: string;
+  token?: string;
+}
+
+const Banner: React.FC<BannerProps> = ({ appName, token }) => {
   if (token) {
     return null;
   }

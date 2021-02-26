@@ -16,14 +16,37 @@ import {
   LOGIN_PAGE_UNLOADED,
   REGISTER_PAGE_UNLOADED,
 } from "../constants/action-types";
+import * as Types from "./types";
 
-const defaultState = {
+export interface CommonState {
+  appName: string;
+  token: string;
+  viewChangeCounter: number;
+  appLoaded: boolean;
+  currentUser?: Types.User;
+  redirectTo?: string;
+}
+
+const defaultState: CommonState = {
   appName: "Conduit",
   token: null,
   viewChangeCounter: 0,
+  appLoaded: false,
+  currentUser: undefined,
+  redirectTo: undefined,
 };
 
-export default (state = defaultState, action) => {
+export interface CommonAction {
+  type?: string;
+  token?: string;
+  error?: Types.Errors;
+  payload: {
+    user?: Types.User;
+    article?: Types.Article;
+  };
+}
+
+export default (state: CommonState = defaultState, action: CommonAction): CommonState => {
   switch (action.type) {
     case APP_LOAD:
       return {

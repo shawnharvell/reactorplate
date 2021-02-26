@@ -2,8 +2,15 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import DeleteButton from "./delete-button";
+import * as Types from "../../reducers/types";
 
-const Comment = ({ comment, currentUser, slug }) => {
+export interface CommentProps {
+  comment?: Types.Comment;
+  currentUser?: Types.User;
+  slug?: Types.Slug;
+}
+
+const Comment: React.FC<CommentProps> = ({ comment, currentUser, slug }) => {
   const show = currentUser && currentUser.username === comment.author.username;
   return (
     <div className="card">

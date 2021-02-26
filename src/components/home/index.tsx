@@ -6,6 +6,7 @@ import MainView from "./main-view";
 import Tags from "./tags";
 import agent from "../../agent";
 import { HOME_PAGE_LOADED, HOME_PAGE_UNLOADED, APPLY_TAG_FILTER } from "../../constants/action-types";
+import * as Types from "../../reducers/types";
 
 const { Promise } = global;
 
@@ -21,7 +22,16 @@ const mapDispatchToProps = (dispatch) => ({
   onUnload: () => dispatch({ type: HOME_PAGE_UNLOADED }),
 });
 
-const Home = ({ token, appName, tags, onClickTag, onLoad, onUnload }) => {
+export interface HomeProps {
+  token?: string;
+  appName: string;
+  tags: Types.Tag[];
+  onClickTag?: (tag, pager, payload) => void;
+  onLoad?: (tab, pager, payload) => void;
+  onUnload?: () => void;
+}
+
+const Home: React.FC<HomeProps> = ({ token, appName, tags, onClickTag, onLoad, onUnload }) => {
   useEffect(() => {
     const tab = token ? "feed" : "all";
     const articlesPromise = token ? agent.Articles.feed : agent.Articles.all;
@@ -39,7 +49,6 @@ const Home = ({ token, appName, tags, onClickTag, onLoad, onUnload }) => {
 
       <div className="container page">
         <div className="row">
-          {/* @ts-ignore */}
           <MainView />
 
           <div className="col-md-3">

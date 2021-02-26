@@ -4,8 +4,14 @@ import { connect } from "react-redux";
 import ListErrors from "./list-errors";
 import agent from "../agent";
 import { SETTINGS_SAVED, SETTINGS_PAGE_UNLOADED, LOGOUT } from "../constants/action-types";
+import * as Types from "../reducers/types";
 
-const SettingsForm = ({ currentUser, onSubmitForm }) => {
+export interface SettingsFormProps {
+  currentUser?: Types.User;
+  onSubmitForm?: (user: Types.User) => void;
+}
+
+const SettingsForm: React.FC<SettingsFormProps> = ({ currentUser, onSubmitForm }) => {
   const [settingsState, setSettingsState] = useState({
     image: "",
     username: "",
@@ -115,7 +121,15 @@ const mapDispatchToProps = (dispatch) => ({
   onUnload: () => dispatch({ type: SETTINGS_PAGE_UNLOADED }),
 });
 
-const Settings = ({ errors, currentUser, onSubmitForm, onClickLogout }) => (
+export interface SettingsProps {
+  errors?: Types.Errors;
+  currentUser?: Types.User;
+  onSubmitForm?: (user: Types.User) => void;
+  onUnload?: () => void;
+  onClickLogout?: () => void;
+}
+
+const Settings: React.FC<SettingsProps> = ({ errors, currentUser, onSubmitForm, onClickLogout }) => (
   <div className="settings-page">
     <div className="container page">
       <div className="row">

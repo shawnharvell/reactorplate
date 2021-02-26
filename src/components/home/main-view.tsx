@@ -2,10 +2,17 @@ import React from "react";
 import { connect } from "react-redux";
 
 import ArticleList from "../article-list";
-import agent from "../../agent";
+import agent, { ArticleListResult } from "../../agent";
 import { CHANGE_TAB } from "../../constants/action-types";
+import * as Types from "../../reducers/types";
 
-const YourFeedTab = ({ token, tab, onTabClick }) => {
+export interface YourFeedTabProps {
+  token?: string;
+  tab: string;
+  onTabClick: (tab, pager, payload) => void;
+}
+
+const YourFeedTab: React.FC<YourFeedTabProps> = ({ token, tab, onTabClick }) => {
   if (token) {
     const clickHandler = (ev) => {
       ev.preventDefault();
@@ -23,21 +30,26 @@ const YourFeedTab = ({ token, tab, onTabClick }) => {
   return null;
 };
 
-const GlobalFeedTab = (props) => {
+export interface GlobalFeedTabProps {
+  tab: string;
+  onTabClick: (tab, pager, payload) => void;
+}
+
+const GlobalFeedTab: React.FC<GlobalFeedTabProps> = ({ tab, onTabClick }) => {
   const clickHandler = (ev) => {
     ev.preventDefault();
-    props.onTabClick("all", agent.Articles.all, agent.Articles.all());
+    onTabClick("all", agent.Articles.all, agent.Articles.all());
   };
   return (
     <li className="nav-item">
-      <a href="" className={props.tab === "all" ? "nav-link active" : "nav-link"} onClick={clickHandler}>
+      <a href="" className={tab === "all" ? "nav-link active" : "nav-link"} onClick={clickHandler}>
         Global Feed
       </a>
     </li>
   );
 };
 
-const TagFilterTab = ({ tag }) => {
+const TagFilterTab: React.FC<{ tag?: string }> = ({ tag }) => {
   if (!tag) {
     return null;
   }
@@ -61,7 +73,29 @@ const mapDispatchToProps = (dispatch) => ({
   onTabClick: (tab, pager, payload) => dispatch({ type: CHANGE_TAB, tab, pager, payload }),
 });
 
-const MainView = ({ token, tab, tag, pager, articles, loading, articlesCount, currentPage, onTabClick }) => (
+export interface MainViewProps {
+  token?: string;
+  tab?: string;
+  tag?: string;
+  pager?: (page: number) => Promise<ArticleListResult>;
+  articles?: Types.Article[];
+  loading?: boolean;
+  articlesCount?: number;
+  currentPage?: number;
+  onTabClick?: (tab, pager, payload) => void;
+}
+
+const MainView: React.FC<MainViewProps> = ({
+  token,
+  tab,
+  tag,
+  pager,
+  articles,
+  loading,
+  articlesCount,
+  currentPage,
+  onTabClick,
+}) => (
   <div className="col-md-9">
     <div className="feed-toggle">
       <ul className="nav nav-pills outline-active">

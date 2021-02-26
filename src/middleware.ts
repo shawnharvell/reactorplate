@@ -1,4 +1,4 @@
-/* eslint-disable no-param-reassign */
+/* eslint-disable no-param-reassign, @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any */
 import agent from "./agent";
 import { ASYNC_START, ASYNC_END, LOGIN, LOGOUT, REGISTER } from "./constants/action-types";
 

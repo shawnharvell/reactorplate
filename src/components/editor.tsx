@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
+import { useParams } from "react-router-dom";
 
 import agent from "../agent";
 import ListErrors from "./list-errors";
@@ -11,6 +12,7 @@ import {
   EDITOR_PAGE_UNLOADED,
   UPDATE_FIELD_EDITOR,
 } from "../constants/action-types";
+import * as Types from "../reducers/types";
 
 const mapStateToProps = (state) => ({
   ...state.editor,
@@ -25,13 +27,29 @@ const mapDispatchToProps = (dispatch) => ({
   onUpdateField: (key, value) => dispatch({ type: UPDATE_FIELD_EDITOR, key, value }),
 });
 
-const Editor = ({
+export interface EditorProps {
+  title?: string;
+  description?: string;
+  body?: string;
+  tagList?: Types.Tag[];
+  tagInput?: string;
+  errors?: Types.Errors;
+  inProgress: boolean;
+  onLoad?: (payload) => void;
+  onUnload?: () => void;
+  onUpdateField?: (key, value) => void;
+  onAddTag?: () => void;
+  onRemoveTag?: (payload) => void;
+  onSubmit?: (payload) => void;
+  articleSlug?: string;
+}
+
+const Editor: React.FC<EditorProps> = ({
   title,
   description,
   body,
   tagList,
   tagInput,
-  match,
   errors,
   inProgress,
   onLoad,
@@ -42,6 +60,7 @@ const Editor = ({
   onSubmit,
   articleSlug: slug,
 }) => {
+  const { slug: urlslug = undefined } = useParams<{ slug: string }>();
   const updateFieldEvent = (key) => (ev) => onUpdateField(key, ev.target.value);
   const changeTitle = updateFieldEvent("title");
   const changeDescription = updateFieldEvent("description");
@@ -68,25 +87,19 @@ const Editor = ({
       tagList,
     };
 
-    // todo unclear intent here so preserving original code for ref incase I guess wrong
-    // const slug = { slug: this.props.articleSlug };
-    // const promise = this.props.articleSlug
-    //   ? agent.Articles.update(Object.assign(article, slug))
-    //   : agent.Articles.create(article);
-
-    const promise = slug ? agent.Articles.update(Object.assign(article, slug)) : agent.Articles.create(article);
+    const promise = slug ? agent.Articles.update({ ...article, slug }) : agent.Articles.create(article);
 
     onSubmit(promise);
   };
 
   useEffect(() => {
-    if (match.params.slug) {
+    if (urlslug) {
       onUnload();
-      onLoad(agent.Articles.get(match.params.slug));
+      onLoad(agent.Articles.get(urlslug));
     } else {
       onLoad(null);
     }
-  }, [match.params.slug]);
+  }, [urlslug]);
 
   return (
     <div className="editor-page">
