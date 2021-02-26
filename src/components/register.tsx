@@ -1,59 +1,34 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
-import { connect } from "react-redux";
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 
 import ListErrors from "./list-errors";
 import agent from "../agent";
-import { UPDATE_FIELD_AUTH, REGISTER, REGISTER_PAGE_UNLOADED } from "../constants/action-types";
 import * as Types from "../reducers/types";
 
-const mapStateToProps = (state) => ({ ...state.auth });
+const Register: React.FC = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [inProgress, setInProgress] = useState<boolean>(false);
+  const [errors, setErrors] = useState<Types.Errors>(undefined);
 
-const mapDispatchToProps = (dispatch) => ({
-  onChangeEmail: (value) => dispatch({ type: UPDATE_FIELD_AUTH, key: "email", value }),
-  onChangePassword: (value) => dispatch({ type: UPDATE_FIELD_AUTH, key: "password", value }),
-  onChangeUsername: (value) => dispatch({ type: UPDATE_FIELD_AUTH, key: "username", value }),
-  onSubmit: (username, email, password) => {
-    const payload = agent.Auth.register(username, email, password);
-    dispatch({ type: REGISTER, payload });
-  },
-  onUnload: () => dispatch({ type: REGISTER_PAGE_UNLOADED }),
-});
+  const history = useHistory();
 
-export interface RegisterProps {
-  onChangeEmail?: (value) => void;
-  onChangePassword?: (value) => void;
-  onChangeUsername?: (value) => void;
-  onSubmit?: (username, email, password) => void;
-  onUnload?: () => void;
-  email?: string;
-  password?: string;
-  username?: string;
-  inProgress: boolean;
-  errors?: Types.Errors;
-}
-
-const Register: React.FC<RegisterProps> = ({
-  onChangeEmail,
-  onChangePassword,
-  onChangeUsername,
-  onSubmit,
-  onUnload,
-  email,
-  password,
-  username,
-  inProgress,
-  errors,
-}) => {
-  const changeEmail = (ev) => onChangeEmail(ev.target.value);
-  const changePassword = (ev) => onChangePassword(ev.target.value);
-  const changeUsername = (ev) => onChangeUsername(ev.target.value);
-  const submitForm = (newusername, newemail, newpassword) => (ev) => {
+  const onClickSubmit = async (ev: React.MouseEvent) => {
+    setInProgress(true);
     ev.preventDefault();
-    onSubmit(newusername, newemail, newpassword);
-  };
+    const results = await agent.Auth.register(username, email, password);
+    if (results.errors) {
+      setErrors(results.errors);
+    } else {
+      setErrors(undefined);
+      window.localStorage.setItem("jwt", results.user.token);
+      agent.setToken(results.user.token);
+      history?.push("/");
+    }
 
-  useEffect(() => onUnload(), []);
+    setInProgress(false);
+  };
 
   return (
     <div className="auth-page">
@@ -67,7 +42,7 @@ const Register: React.FC<RegisterProps> = ({
 
             <ListErrors errors={errors} />
 
-            <form onSubmit={submitForm(username, email, password)}>
+            <form>
               <fieldset>
                 <fieldset className="form-group">
                   <input
@@ -75,7 +50,7 @@ const Register: React.FC<RegisterProps> = ({
                     type="text"
                     placeholder="Username"
                     value={username}
-                    onChange={changeUsername}
+                    onChange={(ev) => setUsername(ev.target.value)}
                   />
                 </fieldset>
 
@@ -85,7 +60,7 @@ const Register: React.FC<RegisterProps> = ({
                     type="email"
                     placeholder="Email"
                     value={email}
-                    onChange={changeEmail}
+                    onChange={(ev) => setEmail(ev.target.value)}
                   />
                 </fieldset>
 
@@ -95,11 +70,16 @@ const Register: React.FC<RegisterProps> = ({
                     type="password"
                     placeholder="Password"
                     value={password}
-                    onChange={changePassword}
+                    onChange={(ev) => setPassword(ev.target.value)}
                   />
                 </fieldset>
 
-                <button className="btn btn-lg btn-primary pull-xs-right" type="submit" disabled={inProgress}>
+                <button
+                  className="btn btn-lg btn-primary pull-xs-right"
+                  type="submit"
+                  onClick={onClickSubmit}
+                  disabled={inProgress}
+                >
                   Sign up
                 </button>
               </fieldset>
@@ -111,4 +91,4 @@ const Register: React.FC<RegisterProps> = ({
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Register);
+export default Register;

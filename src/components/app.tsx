@@ -14,20 +14,22 @@ import Register from "./register";
 import Settings from "./settings";
 import * as Types from "../reducers/types";
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: {
+  common: { appLoaded?: boolean; appName?: string; currentUser?: Types.User; redirectTo?: string };
+}) => ({
   appLoaded: state.common.appLoaded,
   appName: state.common.appName,
   currentUser: state.common.currentUser,
   redirectTo: state.common.redirectTo,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onLoad: (payload, token) => dispatch({ type: APP_LOAD, payload, token, skipTracking: true }),
+const mapDispatchToProps = (dispatch: any) => ({
+  onLoad: (payload: any, token: string) => dispatch({ type: APP_LOAD, payload, token, skipTracking: true }),
   onRedirect: () => dispatch({ type: REDIRECT }),
 });
 
 export interface AppProps {
-  onLoad?: (payload, token?: string) => void;
+  onLoad?: (payload: any, token?: string) => void;
   onRedirect?: () => void;
   redirectTo?: string;
   appName?: string;

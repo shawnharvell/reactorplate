@@ -1,44 +1,44 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { connect } from "react-redux";
 import marked from "marked";
-import { Dispatch } from "redux";
 import { useParams } from "react-router-dom";
 
 import ArticleMeta from "./article-meta";
 import CommentContainer from "./comment-container";
 import agent from "../../agent";
-import { ARTICLE_PAGE_LOADED, ARTICLE_PAGE_UNLOADED } from "../../constants/action-types";
 import * as Types from "../../reducers/types";
 
-const mapStateToProps = (state) => ({
-  ...state.article,
+const mapStateToProps = (state: any) => ({
   currentUser: state.common.currentUser,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onLoad: (payload) => dispatch({ type: ARTICLE_PAGE_LOADED, payload }),
-  onUnload: () => dispatch({ type: ARTICLE_PAGE_UNLOADED }),
-});
-
 export interface ArticleProps {
-  onLoad?: (payload) => void;
-  onUnload?: () => void;
-  article?: Types.Article;
   currentUser?: Types.User;
-  comments?: Types.Comment[];
-  commentErrors?: Types.Errors;
 }
 
-const Article: React.FC<ArticleProps> = ({ onLoad, onUnload, article, currentUser, comments, commentErrors }) => {
+const Article: React.FC<ArticleProps> = ({ currentUser }) => {
   const { id: slug = undefined } = useParams<{ id: string }>();
 
+  const [article, setArticle] = useState<Types.Article>();
+
   useEffect(() => {
-    onLoad(Promise.all([agent.Articles.get(slug), agent.Comments.forArticle(slug)]));
+    // onLoad(Promise.all([agent.Articles.get(slug), agent.Comments.forArticle(slug)]));
+    let isCanceled = false;
+
+    if (slug) {
+      setArticle(undefined);
+      (async () => {
+        const results = await agent.Articles.get(slug);
+        if (!results.errors && !isCanceled) {
+          setArticle(results.article);
+        }
+      })();
+    }
 
     return () => {
-      onUnload();
+      isCanceled = true;
     };
-  }, []);
+  }, [slug]);
 
   if (!article) {
     return null;
@@ -76,11 +76,11 @@ const Article: React.FC<ArticleProps> = ({ onLoad, onUnload, article, currentUse
         <div className="article-actions" />
 
         <div className="row">
-          <CommentContainer comments={comments || []} errors={commentErrors} slug={slug} currentUser={currentUser} />
+          <CommentContainer slug={slug} currentUser={currentUser} />
         </div>
       </div>
     </div>
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Article);
+export default connect(mapStateToProps)(Article);

@@ -7,6 +7,7 @@ export interface CommentListProps {
   currentUser?: Types.User;
   slug?: Types.Slug;
   comments?: Types.Comment[];
+  onCommentDeleted?: (id: number) => void;
 }
 
 const CommentList: React.FC<CommentListProps> = ({ currentUser, slug, comments }) => (

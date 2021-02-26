@@ -1,50 +1,33 @@
-import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
 
 import ListErrors from "./list-errors";
 import agent from "../agent";
-import { UPDATE_FIELD_AUTH, LOGIN, LOGIN_PAGE_UNLOADED } from "../constants/action-types";
 import * as Types from "../reducers/types";
 
-const mapStateToProps = (state) => ({ ...state.auth });
+const Login: React.FC = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [inProgress, setInProgress] = useState<boolean>(false);
+  const [errors, setErrors] = useState<Types.Errors>(undefined);
 
-const mapDispatchToProps = (dispatch) => ({
-  onChangeEmail: (value) => dispatch({ type: UPDATE_FIELD_AUTH, key: "email", value }),
-  onChangePassword: (value) => dispatch({ type: UPDATE_FIELD_AUTH, key: "password", value }),
-  onSubmit: (email, password) => dispatch({ type: LOGIN, payload: agent.Auth.login(email, password) }),
-  onUnload: () => dispatch({ type: LOGIN_PAGE_UNLOADED }),
-});
+  const history = useHistory();
 
-export interface LoginProps {
-  email?: string;
-  password?: string;
-  inProgress: boolean;
-  errors?: Types.Errors;
-  onChangeEmail?: (value) => void;
-  onChangePassword?: (value) => void;
-  onSubmit?: (email, password) => void;
-  onUnload?: () => void;
-}
-
-const Login: React.FC<LoginProps> = ({
-  email,
-  password,
-  inProgress,
-  errors,
-  onChangeEmail,
-  onChangePassword,
-  onSubmit,
-  onUnload,
-}) => {
-  const changeEmail = (ev) => onChangeEmail(ev.target.value);
-  const changePassword = (ev) => onChangePassword(ev.target.value);
-  const submitForm = (newemail, newpassword) => (ev) => {
+  const onClickSubmit = async (ev: React.MouseEvent) => {
+    setInProgress(true);
     ev.preventDefault();
-    onSubmit(newemail, newpassword);
-  };
+    const results = await agent.Auth.login(email, password);
+    if (results.errors) {
+      setErrors(results.errors);
+    } else {
+      setErrors(undefined);
+      window.localStorage.setItem("jwt", results.user.token);
+      agent.setToken(results.user.token);
+      history?.push("/");
+    }
 
-  useEffect(() => onUnload(), []);
+    setInProgress(false);
+  };
 
   return (
     <div className="auth-page">
@@ -58,7 +41,7 @@ const Login: React.FC<LoginProps> = ({
 
             <ListErrors errors={errors} />
 
-            <form onSubmit={submitForm(email, password)}>
+            <form>
               <fieldset>
                 <fieldset className="form-group">
                   <input
@@ -66,7 +49,7 @@ const Login: React.FC<LoginProps> = ({
                     type="email"
                     placeholder="Email"
                     value={email}
-                    onChange={changeEmail}
+                    onChange={(ev) => setEmail(ev.target.value)}
                   />
                 </fieldset>
 
@@ -76,11 +59,16 @@ const Login: React.FC<LoginProps> = ({
                     type="password"
                     placeholder="Password"
                     value={password}
-                    onChange={changePassword}
+                    onChange={(ev) => setPassword(ev.target.value)}
                   />
                 </fieldset>
 
-                <button className="btn btn-lg btn-primary pull-xs-right" type="submit" disabled={inProgress}>
+                <button
+                  className="btn btn-lg btn-primary pull-xs-right"
+                  type="submit"
+                  onClick={onClickSubmit}
+                  disabled={inProgress}
+                >
                   Sign in
                 </button>
               </fieldset>
@@ -92,4 +80,4 @@ const Login: React.FC<LoginProps> = ({
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
+export default Login;

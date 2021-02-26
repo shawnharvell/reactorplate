@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import superagent from "superagent";
 
 import * as Types from "./reducers/types";
@@ -5,10 +6,10 @@ import * as Types from "./reducers/types";
 const API_ROOT = "https://conduit.productionready.io/api";
 
 const encode = encodeURIComponent;
-const responseBody = (res) => res.body;
+const responseBody = (res: any) => res.body;
 
 let token: string = null;
-const tokenPlugin = (req) => {
+const tokenPlugin = (req: any) => {
   if (token) {
     req.set("authorization", `Token ${token}`);
   }
@@ -17,30 +18,37 @@ const tokenPlugin = (req) => {
 export interface ArticleListResult {
   articles?: Types.Article[];
   articlesCount?: number;
+  errors?: Types.Errors;
 }
 
 export interface ArticleResult {
-  article: Types.Article;
+  article?: Types.Article;
+  errors?: Types.Errors;
 }
 
 export interface CommentListResult {
-  comments: Types.Comment[];
+  comments?: Types.Comment[];
+  errors?: Types.Errors;
 }
 
 export interface UserResult {
-  user: Types.User;
+  user?: Types.User;
+  errors?: Types.Errors;
 }
 
 export interface TagListResult {
-  tags: Types.Tag[];
+  tags?: Types.Tag[];
+  errors?: Types.Errors;
 }
 
 export interface ProfileResult {
-  profile: Types.Profile;
+  profile?: Types.Profile;
+  errors?: Types.Errors;
 }
 
 export interface CommentResult {
-  comment: Types.Comment;
+  comment?: Types.Comment;
+  errors?: Types.Errors;
 }
 
 const requests = {
@@ -58,7 +66,7 @@ const Auth = {
     requests.post("/users/login", { user: { email, password } }),
   register: (username: string, email: string, password: string): Promise<UserResult> =>
     requests.post("/users", { user: { username, email, password } }),
-  save: (user): Promise<UserResult> => requests.put("/user", { user }),
+  save: (user: Types.User): Promise<UserResult> => requests.put("/user", { user }),
 };
 
 const Tags = {
@@ -66,18 +74,19 @@ const Tags = {
 };
 
 const limit = (count: number, p: number) => `limit=${count}&offset=${p ? p * count : 0}`;
-const omitSlug = (article: Types.Article) => ({ ...article, slug: undefined });
+const omitSlug = (article: Types.Article) => ({ ...article, slug: "" });
 const Articles = {
   all: (page?: number): Promise<ArticleListResult> => requests.get(`/articles?${limit(10, page)}`),
-  byAuthor: (author, page?): Promise<ArticleListResult> =>
+  byAuthor: (author: string, page?: number): Promise<ArticleListResult> =>
     requests.get(`/articles?author=${encode(author)}&${limit(5, page)}`),
-  byTag: (tag, page?): Promise<ArticleListResult> => requests.get(`/articles?tag=${encode(tag)}&${limit(10, page)}`),
+  byTag: (tag: Types.Tag, page?: number): Promise<ArticleListResult> =>
+    requests.get(`/articles?tag=${encode(tag)}&${limit(10, page)}`),
   del: (slug: Types.Slug): Promise<ArticleResult> => requests.del(`/articles/${slug}`),
   favorite: (slug: Types.Slug): Promise<ArticleResult> => requests.post(`/articles/${slug}/favorite`, {}),
-  favoritedBy: (author, page?): Promise<ArticleListResult> =>
+  favoritedBy: (author: string, page?: number): Promise<ArticleListResult> =>
     requests.get(`/articles?favorited=${encode(author)}&${limit(5, page)}`),
   feed: (): Promise<ArticleListResult> => requests.get("/articles/feed?limit=10&offset=0"),
-  get: (slug): Promise<ArticleResult> => requests.get(`/articles/${slug}`),
+  get: (slug: Types.Slug): Promise<ArticleResult> => requests.get(`/articles/${slug}`),
   unfavorite: (slug: Types.Slug): Promise<ArticleResult> => requests.del(`/articles/${slug}/favorite`),
   update: (article: Types.Article): Promise<ArticleResult> =>
     requests.put(`/articles/${article.slug}`, { article: omitSlug(article) }),
@@ -85,9 +94,11 @@ const Articles = {
 };
 
 const Comments = {
-  create: (slug, comment): Promise<CommentResult> => requests.post(`/articles/${slug}/comments`, { comment }),
-  delete: (slug, commentId): Promise<CommentResult> => requests.del(`/articles/${slug}/comments/${commentId}`),
-  forArticle: (slug): Promise<CommentListResult> => requests.get(`/articles/${slug}/comments`),
+  create: (slug: Types.Slug, comment: Types.Comment): Promise<CommentResult> =>
+    requests.post(`/articles/${slug}/comments`, { comment }),
+  delete: (slug: Types.Slug, commentId: number): Promise<CommentResult> =>
+    requests.del(`/articles/${slug}/comments/${commentId}`),
+  forArticle: (slug: Types.Slug): Promise<CommentListResult> => requests.get(`/articles/${slug}/comments`),
 };
 
 const Profile = {

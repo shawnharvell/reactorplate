@@ -12,10 +12,7 @@ export interface ArticleAction {
   type?: string;
   error?: boolean;
   commentId?: number;
-  payload: {
-    errors?: Types.Errors;
-    comment?: Types.Comment;
-  };
+  payload: any;
 }
 
 export default (state: ArticleState = {}, action: ArticleAction): ArticleState => {

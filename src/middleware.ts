@@ -2,7 +2,7 @@
 import agent from "./agent";
 import { ASYNC_START, ASYNC_END, LOGIN, LOGOUT, REGISTER } from "./constants/action-types";
 
-const promiseMiddleware = (store) => (next: (arg0: any) => void) => (action) => {
+const promiseMiddleware = (store: any) => (next: (arg0: any) => void) => (action: any) => {
   if (isPromise(action.payload)) {
     store.dispatch({ type: ASYNC_START, subtype: action.type });
 
@@ -10,7 +10,7 @@ const promiseMiddleware = (store) => (next: (arg0: any) => void) => (action) => 
     const { skipTracking } = action;
 
     action.payload.then(
-      (res) => {
+      (res: any) => {
         const currentState = store.getState();
         if (!skipTracking && currentState.viewChangeCounter !== currentView) {
           return;
@@ -39,7 +39,7 @@ const promiseMiddleware = (store) => (next: (arg0: any) => void) => (action) => 
   next(action);
 };
 
-const localStorageMiddleware = () => (next) => (action) => {
+const localStorageMiddleware = () => (next: any) => (action: any) => {
   if (action.type === REGISTER || action.type === LOGIN) {
     if (!action.error) {
       window.localStorage.setItem("jwt", action.payload.user.token);
@@ -53,7 +53,7 @@ const localStorageMiddleware = () => (next) => (action) => {
   next(action);
 };
 
-function isPromise(v) {
+function isPromise(v: any) {
   return v && typeof v.then === "function";
 }
 

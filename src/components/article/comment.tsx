@@ -8,9 +8,10 @@ export interface CommentProps {
   comment?: Types.Comment;
   currentUser?: Types.User;
   slug?: Types.Slug;
+  onCommentDeleted?: (id: number) => void;
 }
 
-const Comment: React.FC<CommentProps> = ({ comment, currentUser, slug }) => {
+const Comment: React.FC<CommentProps> = ({ comment, currentUser, slug, onCommentDeleted }) => {
   const show = currentUser && currentUser.username === comment.author.username;
   return (
     <div className="card">
@@ -26,7 +27,7 @@ const Comment: React.FC<CommentProps> = ({ comment, currentUser, slug }) => {
           {comment.author.username}
         </Link>
         <span className="date-posted">{new Date(comment.createdAt).toDateString()}</span>
-        <DeleteButton show={show} slug={slug} commentId={comment.id} />
+        <DeleteButton show={show} slug={slug} commentId={comment.id} onCommentDeleted={onCommentDeleted} />
       </div>
     </div>
   );

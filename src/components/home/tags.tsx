@@ -5,7 +5,7 @@ import * as Types from "../../reducers/types";
 
 export interface TagsProps {
   tags?: Types.Tag[];
-  onClickTag?: (tag, pager, payload) => void;
+  onClickTag?: (tag: string, pager: any, payload: any) => void;
 }
 
 const Tags: React.FC<TagsProps> = ({ tags, onClickTag }) => {
@@ -13,9 +13,9 @@ const Tags: React.FC<TagsProps> = ({ tags, onClickTag }) => {
     return (
       <div className="tag-list">
         {tags.map((tag) => {
-          const handleClick = (ev) => {
+          const handleClick = (ev: React.MouseEvent) => {
             ev.preventDefault();
-            onClickTag(tag, (page) => agent.Articles.byTag(tag, page), agent.Articles.byTag(tag));
+            onClickTag(tag, (page: number) => agent.Articles.byTag(tag, page), agent.Articles.byTag(tag));
           };
 
           return (

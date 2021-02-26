@@ -31,11 +31,7 @@ export interface ArticleListAction {
   tag?: Types.Tag;
   tab?: string;
   pager?: unknown;
-  payload: {
-    article?: Types.Article;
-    articles?: Types.Article[];
-    articlesCount?: number;
-  };
+  payload: any;
 }
 
 export default (state: ArticleListState = {}, action: ArticleListAction): ArticleListState => {

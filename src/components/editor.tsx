@@ -14,17 +14,17 @@ import {
 } from "../constants/action-types";
 import * as Types from "../reducers/types";
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: any) => ({
   ...state.editor,
 });
 
-const mapDispatchToProps = (dispatch) => ({
+const mapDispatchToProps = (dispatch: any) => ({
   onAddTag: () => dispatch({ type: ADD_TAG }),
-  onLoad: (payload) => dispatch({ type: EDITOR_PAGE_LOADED, payload }),
-  onRemoveTag: (tag) => dispatch({ type: REMOVE_TAG, tag }),
-  onSubmit: (payload) => dispatch({ type: ARTICLE_SUBMITTED, payload }),
+  onLoad: (payload: any) => dispatch({ type: EDITOR_PAGE_LOADED, payload }),
+  onRemoveTag: (tag: string) => dispatch({ type: REMOVE_TAG, tag }),
+  onSubmit: (payload: any) => dispatch({ type: ARTICLE_SUBMITTED, payload }),
   onUnload: () => dispatch({ type: EDITOR_PAGE_UNLOADED }),
-  onUpdateField: (key, value) => dispatch({ type: UPDATE_FIELD_EDITOR, key, value }),
+  onUpdateField: (key: string, value: string) => dispatch({ type: UPDATE_FIELD_EDITOR, key, value }),
 });
 
 export interface EditorProps {
@@ -35,12 +35,12 @@ export interface EditorProps {
   tagInput?: string;
   errors?: Types.Errors;
   inProgress: boolean;
-  onLoad?: (payload) => void;
+  onLoad?: (payload: any) => void;
   onUnload?: () => void;
-  onUpdateField?: (key, value) => void;
+  onUpdateField?: (key: string, value: string) => void;
   onAddTag?: () => void;
-  onRemoveTag?: (payload) => void;
-  onSubmit?: (payload) => void;
+  onRemoveTag?: (payload: any) => void;
+  onSubmit?: (payload: any) => void;
   articleSlug?: string;
 }
 
@@ -61,24 +61,26 @@ const Editor: React.FC<EditorProps> = ({
   articleSlug: slug,
 }) => {
   const { slug: urlslug = undefined } = useParams<{ slug: string }>();
-  const updateFieldEvent = (key) => (ev) => onUpdateField(key, ev.target.value);
+  const updateFieldEvent = (key: string) => (
+    ev: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>
+  ) => onUpdateField(key, ev.target.value);
   const changeTitle = updateFieldEvent("title");
   const changeDescription = updateFieldEvent("description");
   const changeBody = updateFieldEvent("body");
   const changeTagInput = updateFieldEvent("tagInput");
 
-  const watchForEnter = (ev) => {
+  const watchForEnter = (ev: React.KeyboardEvent) => {
     if (ev.keyCode === 13) {
       ev.preventDefault();
       onAddTag();
     }
   };
 
-  const removeTagHandler = (tag) => () => {
+  const removeTagHandler = (tag: string) => () => {
     onRemoveTag(tag);
   };
 
-  const submitForm = (ev) => {
+  const submitForm = (ev: React.FormEvent) => {
     ev.preventDefault();
     const article = {
       title,

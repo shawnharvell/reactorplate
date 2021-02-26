@@ -4,15 +4,15 @@ import { connect } from "react-redux";
 import agent, { ArticleListResult } from "../agent";
 import { SET_PAGE } from "../constants/action-types";
 
-const mapDispatchToProps = (dispatch) => ({
-  onSetPage: (page, payload) => dispatch({ type: SET_PAGE, page, payload }),
+const mapDispatchToProps = (dispatch: any) => ({
+  onSetPage: (page: number, payload: any) => dispatch({ type: SET_PAGE, page, payload }),
 });
 
 export interface ListPaginationProps {
   articlesCount?: number;
   currentPage?: number;
   pager?: (page: number) => Promise<ArticleListResult>;
-  onSetPage?: (page, payload) => void;
+  onSetPage?: (page: number, payload: any) => void;
 }
 
 const ListPagination: React.FC<ListPaginationProps> = ({ articlesCount, pager, onSetPage, currentPage }) => {
@@ -25,7 +25,7 @@ const ListPagination: React.FC<ListPaginationProps> = ({ articlesCount, pager, o
     range.push(i);
   }
 
-  const setPage = (page) => {
+  const setPage = (page: number) => {
     if (pager) {
       onSetPage(page, pager(page));
     } else {
@@ -38,7 +38,7 @@ const ListPagination: React.FC<ListPaginationProps> = ({ articlesCount, pager, o
       <ul className="pagination">
         {range.map((v) => {
           const isCurrent = v === currentPage;
-          const onClick = (ev) => {
+          const onClick = (ev: React.MouseEvent | React.KeyboardEvent) => {
             ev.preventDefault();
             setPage(v);
           };

@@ -1,42 +1,33 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
 
 import agent from "../agent";
-import { ARTICLE_FAVORITED, ARTICLE_UNFAVORITED } from "../constants/action-types";
 import * as Types from "../reducers/types";
 
 const FAVORITED_CLASS = "btn btn-sm btn-primary";
 const NOT_FAVORITED_CLASS = "btn btn-sm btn-outline-primary";
 
-const mapDispatchToProps = (dispatch) => ({
-  favorite: (slug) =>
-    dispatch({
-      type: ARTICLE_FAVORITED,
-      payload: agent.Articles.favorite(slug),
-    }),
-  unfavorite: (slug) =>
-    dispatch({
-      type: ARTICLE_UNFAVORITED,
-      payload: agent.Articles.unfavorite(slug),
-    }),
-});
-
 export interface ArticlePreviewProps {
   article?: Types.Article;
-  favorite?: (slug: Types.Slug) => void;
-  unfavorite?: (slug: Types.Slug) => void;
+  onFavorited?: (article: Types.Article) => void;
+  onUnfavorited?: (article: Types.Article) => void;
 }
 
-const ArticlePreview: React.FC<ArticlePreviewProps> = ({ article, unfavorite, favorite }) => {
+const ArticlePreview: React.FC<ArticlePreviewProps> = ({ article, onFavorited, onUnfavorited }) => {
   const favoriteButtonClass = article.favorited ? FAVORITED_CLASS : NOT_FAVORITED_CLASS;
 
-  const handleClick = (ev) => {
+  const handleClick = async (ev: React.MouseEvent) => {
     ev.preventDefault();
     if (article.favorited) {
-      unfavorite(article.slug);
+      const results = await agent.Articles.unfavorite(article.slug);
+      if (!results.errors) {
+        onUnfavorited?.(results.article);
+      }
     } else {
-      favorite(article.slug);
+      const results = await agent.Articles.favorite(article.slug);
+      if (!results.errors) {
+        onFavorited?.(results.article);
+      }
     }
   };
 
@@ -77,4 +68,4 @@ const ArticlePreview: React.FC<ArticlePreviewProps> = ({ article, unfavorite, fa
   );
 };
 
-export default connect(() => ({}), mapDispatchToProps)(ArticlePreview);
+export default ArticlePreview;

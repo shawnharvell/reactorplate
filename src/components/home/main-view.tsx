@@ -9,12 +9,12 @@ import * as Types from "../../reducers/types";
 export interface YourFeedTabProps {
   token?: string;
   tab: string;
-  onTabClick: (tab, pager, payload) => void;
+  onTabClick: (tab: string, pager: any, payload: any) => void;
 }
 
 const YourFeedTab: React.FC<YourFeedTabProps> = ({ token, tab, onTabClick }) => {
   if (token) {
-    const clickHandler = (ev) => {
+    const clickHandler = (ev: React.MouseEvent) => {
       ev.preventDefault();
       onTabClick("feed", agent.Articles.feed, agent.Articles.feed());
     };
@@ -32,11 +32,11 @@ const YourFeedTab: React.FC<YourFeedTabProps> = ({ token, tab, onTabClick }) => 
 
 export interface GlobalFeedTabProps {
   tab: string;
-  onTabClick: (tab, pager, payload) => void;
+  onTabClick: (tab: string, pager: any, payload: any) => void;
 }
 
 const GlobalFeedTab: React.FC<GlobalFeedTabProps> = ({ tab, onTabClick }) => {
-  const clickHandler = (ev) => {
+  const clickHandler = (ev: React.MouseEvent) => {
     ev.preventDefault();
     onTabClick("all", agent.Articles.all, agent.Articles.all());
   };
@@ -63,14 +63,14 @@ const TagFilterTab: React.FC<{ tag?: string }> = ({ tag }) => {
   );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: any) => ({
   ...state.articleList,
   tags: state.home.tags,
   token: state.common.token,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onTabClick: (tab, pager, payload) => dispatch({ type: CHANGE_TAB, tab, pager, payload }),
+const mapDispatchToProps = (dispatch: any) => ({
+  onTabClick: (tab: string, pager: any, payload: any) => dispatch({ type: CHANGE_TAB, tab, pager, payload }),
 });
 
 export interface MainViewProps {
@@ -82,7 +82,7 @@ export interface MainViewProps {
   loading?: boolean;
   articlesCount?: number;
   currentPage?: number;
-  onTabClick?: (tab, pager, payload) => void;
+  onTabClick?: (tab: string, pager: any, payload: any) => void;
 }
 
 const MainView: React.FC<MainViewProps> = ({

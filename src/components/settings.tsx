@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 
 import ListErrors from "./list-errors";
 import agent from "../agent";
-import { SETTINGS_SAVED, SETTINGS_PAGE_UNLOADED, LOGOUT } from "../constants/action-types";
 import * as Types from "../reducers/types";
 
 export interface SettingsFormProps {
@@ -12,30 +11,13 @@ export interface SettingsFormProps {
 }
 
 const SettingsForm: React.FC<SettingsFormProps> = ({ currentUser, onSubmitForm }) => {
-  const [settingsState, setSettingsState] = useState({
+  const [settingsState, setSettingsState] = useState<Record<string, string>>({
     image: "",
     username: "",
     bio: "",
     email: "",
     password: "",
   });
-
-  const updateState = (field) => (ev) => {
-    const state = { ...settingsState };
-    state[field] = ev.target.value;
-    setSettingsState(state);
-  };
-
-  const submitForm = (ev) => {
-    ev.preventDefault();
-
-    const user = { ...settingsState };
-    if (!user.password) {
-      delete user.password;
-    }
-
-    onSubmitForm(user);
-  };
 
   useEffect(() => {
     if (currentUser) {
@@ -49,8 +31,27 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ currentUser, onSubmitForm }
     }
   }, [currentUser]);
 
+  const updateState = (field: string) => (
+    ev: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const state: Record<string, string> = { ...settingsState };
+    state[field] = ev.target.value;
+    setSettingsState(state);
+  };
+
+  const submitForm = (ev: React.MouseEvent) => {
+    ev.preventDefault();
+
+    const user = { ...settingsState };
+    if (!user.password) {
+      delete user.password;
+    }
+
+    onSubmitForm(user);
+  };
+
   return (
-    <form onSubmit={submitForm}>
+    <form>
       <fieldset>
         <fieldset className="form-group">
           <input
@@ -102,7 +103,7 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ currentUser, onSubmitForm }
           />
         </fieldset>
 
-        <button className="btn btn-lg btn-primary pull-xs-right" type="submit">
+        <button className="btn btn-lg btn-primary pull-xs-right" type="submit" onClick={submitForm}>
           Update Settings
         </button>
       </fieldset>
@@ -110,45 +111,53 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ currentUser, onSubmitForm }
   );
 };
 
-const mapStateToProps = (state) => ({
-  ...state.settings,
+const mapStateToProps = (state: { common: { currentUser: Types.User } }) => ({
   currentUser: state.common.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onClickLogout: () => dispatch({ type: LOGOUT }),
-  onSubmitForm: (user) => dispatch({ type: SETTINGS_SAVED, payload: agent.Auth.save(user) }),
-  onUnload: () => dispatch({ type: SETTINGS_PAGE_UNLOADED }),
-});
-
 export interface SettingsProps {
-  errors?: Types.Errors;
   currentUser?: Types.User;
-  onSubmitForm?: (user: Types.User) => void;
-  onUnload?: () => void;
-  onClickLogout?: () => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ errors, currentUser, onSubmitForm, onClickLogout }) => (
-  <div className="settings-page">
-    <div className="container page">
-      <div className="row">
-        <div className="col-md-6 offset-md-3 col-xs-12">
-          <h1 className="text-xs-center">Your Settings</h1>
+const Settings: React.FC<SettingsProps> = ({ currentUser }) => {
+  const [errors, setErrors] = useState<Types.Errors>(undefined);
 
-          <ListErrors errors={errors} />
+  const onClickLogout = () => {
+    window.localStorage.setItem("jwt", "");
+    agent.setToken(null);
+  };
 
-          <SettingsForm currentUser={currentUser} onSubmitForm={onSubmitForm} />
+  const onSubmitForm = async (user: Types.User) => {
+    const results = await agent.Auth.save(user);
+    if (results.errors) {
+      setErrors(results.errors);
+    } else {
+      setErrors(undefined);
+      // update the state
+    }
+  };
 
-          <hr />
+  return (
+    <div className="settings-page">
+      <div className="container page">
+        <div className="row">
+          <div className="col-md-6 offset-md-3 col-xs-12">
+            <h1 className="text-xs-center">Your Settings</h1>
 
-          <button type="button" className="btn btn-outline-danger" onClick={onClickLogout}>
-            Or click here to logout.
-          </button>
+            <ListErrors errors={errors} />
+
+            <SettingsForm currentUser={currentUser} onSubmitForm={onSubmitForm} />
+
+            <hr />
+
+            <button type="button" className="btn btn-outline-danger" onClick={onClickLogout}>
+              Or click here to logout.
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(Settings);
+export default connect(mapStateToProps)(Settings);

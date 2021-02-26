@@ -10,15 +10,15 @@ import * as Types from "../../reducers/types";
 
 const { Promise } = global;
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: any) => ({
   ...state.home,
   appName: state.common.appName,
   token: state.common.token,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onClickTag: (tag, pager, payload) => dispatch({ type: APPLY_TAG_FILTER, tag, pager, payload }),
-  onLoad: (tab, pager, payload) => dispatch({ type: HOME_PAGE_LOADED, tab, pager, payload }),
+const mapDispatchToProps = (dispatch: any) => ({
+  onClickTag: (tag: string, pager: any, payload: any) => dispatch({ type: APPLY_TAG_FILTER, tag, pager, payload }),
+  onLoad: (tab: string, pager: any, payload: any) => dispatch({ type: HOME_PAGE_LOADED, tab, pager, payload }),
   onUnload: () => dispatch({ type: HOME_PAGE_UNLOADED }),
 });
 
@@ -26,8 +26,8 @@ export interface HomeProps {
   token?: string;
   appName: string;
   tags: Types.Tag[];
-  onClickTag?: (tag, pager, payload) => void;
-  onLoad?: (tab, pager, payload) => void;
+  onClickTag?: (tag: string, pager: any, payload: any) => void;
+  onLoad?: (tab: string, pager: any, payload: any) => void;
   onUnload?: () => void;
 }
 

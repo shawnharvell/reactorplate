@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, useParams, useRouteMatch } from "react-router-dom";
 import { connect } from "react-redux";
 import classnames from "classnames";
 
 import ArticleList from "./article-list";
 import agent from "../agent";
-import { FOLLOW_USER, UNFOLLOW_USER } from "../constants/action-types";
 import * as Types from "../reducers/types";
 
 const EditProfileSettings: React.FC<{ isUser: boolean }> = ({ isUser }) => {
@@ -38,7 +37,7 @@ const FollowUserButton: React.FC<FollowUserButtonProps> = ({ isUser, user, follo
     classes += " btn-outline-secondary";
   }
 
-  const handleClick = (ev) => {
+  const handleClick = (ev: React.MouseEvent) => {
     ev.preventDefault();
     if (user.following) {
       unfollow(user.username);
@@ -56,24 +55,17 @@ const FollowUserButton: React.FC<FollowUserButtonProps> = ({ isUser, user, follo
   );
 };
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = (state: { common: { currentUser: Types.User } }) => ({
   currentUser: state.common.currentUser,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  onFollow: (username) =>
-    dispatch({
-      type: FOLLOW_USER,
-      payload: agent.Profile.follow(username),
-    }),
-  onUnfollow: (username) =>
-    dispatch({
-      type: UNFOLLOW_USER,
-      payload: agent.Profile.unfollow(username),
-    }),
-});
+export interface ProfileProps {
+  pager?: any;
+  currentPage?: number;
+  currentUser?: Types.User;
+}
 
-const Profile = ({ pager, currentPage, currentUser, onFollow, onUnfollow }) => {
+const Profile: React.FC<ProfileProps> = ({ pager, currentPage, currentUser }) => {
   const { username } = useParams<{ username: string }>();
   const { path } = useRouteMatch();
   const tab = path?.endsWith("favorites") ? "favorites" : "authored";
@@ -119,6 +111,16 @@ const Profile = ({ pager, currentPage, currentUser, onFollow, onUnfollow }) => {
       articleLoadCanceled = true;
     };
   }, [username, tab]);
+
+  const onFollow = useCallback(async () => {
+    const results = await agent.Profile.follow(username);
+    setProfile(results.profile);
+  }, [username]);
+
+  const onUnfollow = useCallback(async () => {
+    const results = await agent.Profile.unfollow(username);
+    setProfile(results.profile);
+  }, [username]);
 
   if (!profile) {
     return null;
@@ -183,4 +185,4 @@ const Profile = ({ pager, currentPage, currentUser, onFollow, onUnfollow }) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps)(Profile);

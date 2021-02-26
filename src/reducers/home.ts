@@ -1,12 +1,8 @@
 import { HOME_PAGE_LOADED, HOME_PAGE_UNLOADED } from "../constants/action-types";
 
-import * as Types from "./types";
-
 export interface HomeAction {
   type: string;
-  payload: {
-    tags: Types.Tag[];
-  };
+  payload: any;
 }
 
 export default (state = {}, action: HomeAction): unknown => {
