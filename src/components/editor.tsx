@@ -1,88 +1,74 @@
-import React, { useEffect } from "react";
-import { connect } from "react-redux";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useHistory, useParams } from "react-router-dom";
 
 import agent from "../agent";
 import ListErrors from "./list-errors";
-import {
-  ADD_TAG,
-  EDITOR_PAGE_LOADED,
-  REMOVE_TAG,
-  ARTICLE_SUBMITTED,
-  EDITOR_PAGE_UNLOADED,
-  UPDATE_FIELD_EDITOR,
-} from "../constants/action-types";
 import * as Types from "../reducers/types";
 
-const mapStateToProps = (state: any) => ({
-  ...state.editor,
-});
+const Editor: React.FC = () => {
+  const { slug } = useParams<{ slug: string }>();
 
-const mapDispatchToProps = (dispatch: any) => ({
-  onAddTag: () => dispatch({ type: ADD_TAG }),
-  onLoad: (payload: any) => dispatch({ type: EDITOR_PAGE_LOADED, payload }),
-  onRemoveTag: (tag: string) => dispatch({ type: REMOVE_TAG, tag }),
-  onSubmit: (payload: any) => dispatch({ type: ARTICLE_SUBMITTED, payload }),
-  onUnload: () => dispatch({ type: EDITOR_PAGE_UNLOADED }),
-  onUpdateField: (key: string, value: string) => dispatch({ type: UPDATE_FIELD_EDITOR, key, value }),
-});
+  const [title, setTitle] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [body, setBody] = useState<string>("");
+  const [tagList, setTagList] = useState<Types.Tag[]>([]);
+  const [tagInput, setTagInput] = useState<Types.Tag>("");
+  const [errors, setErrors] = useState<Types.Errors>(undefined);
+  const [inProgress, setInProgress] = useState<boolean>(false);
 
-export interface EditorProps {
-  title?: string;
-  description?: string;
-  body?: string;
-  tagList?: Types.Tag[];
-  tagInput?: string;
-  errors?: Types.Errors;
-  inProgress: boolean;
-  onLoad?: (payload: any) => void;
-  onUnload?: () => void;
-  onUpdateField?: (key: string, value: string) => void;
-  onAddTag?: () => void;
-  onRemoveTag?: (payload: any) => void;
-  onSubmit?: (payload: any) => void;
-  articleSlug?: string;
-}
+  const history = useHistory();
 
-const Editor: React.FC<EditorProps> = ({
-  title,
-  description,
-  body,
-  tagList,
-  tagInput,
-  errors,
-  inProgress,
-  onLoad,
-  onUnload,
-  onUpdateField,
-  onAddTag,
-  onRemoveTag,
-  onSubmit,
-  articleSlug: slug,
-}) => {
-  const { slug: urlslug = undefined } = useParams<{ slug: string }>();
-  const updateFieldEvent = (key: string) => (
-    ev: React.ChangeEvent<HTMLTextAreaElement> | React.ChangeEvent<HTMLInputElement>
-  ) => onUpdateField(key, ev.target.value);
-  const changeTitle = updateFieldEvent("title");
-  const changeDescription = updateFieldEvent("description");
-  const changeBody = updateFieldEvent("body");
-  const changeTagInput = updateFieldEvent("tagInput");
+  useEffect(() => {
+    let isCanceled = false;
+    setErrors(undefined);
+
+    if (!slug) {
+      setTitle("");
+      setDescription("");
+      setBody("");
+      setTagInput("");
+      setTagList([]);
+    } else {
+      setInProgress(true);
+      (async () => {
+        const results = await agent.Articles.get(slug);
+        if (!isCanceled) {
+          if (results.errors) {
+            setErrors(results.errors);
+          } else {
+            setTitle(results.article.title);
+            setDescription(results.article.description);
+            setBody(results.article.body);
+            setTagInput("");
+            setTagList(results.article.tagList);
+          }
+          setInProgress(false);
+        }
+      })();
+    }
+
+    return () => {
+      isCanceled = true;
+    };
+  }, [slug]);
 
   const watchForEnter = (ev: React.KeyboardEvent) => {
-    if (ev.keyCode === 13) {
+    if (ev.code === "Enter") {
       ev.preventDefault();
-      onAddTag();
+      const newtag = tagInput;
+      setTagInput("");
+      setTagList((previous) => [...previous, newtag]);
     }
   };
 
   const removeTagHandler = (tag: string) => () => {
-    onRemoveTag(tag);
+    setTagList((previous) => previous.filter((t) => t !== tag));
   };
 
-  const submitForm = (ev: React.FormEvent) => {
+  const submitForm = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    const article = {
+    setInProgress(true);
+    const article: Types.Article = {
       title,
       description,
       body,
@@ -90,18 +76,14 @@ const Editor: React.FC<EditorProps> = ({
     };
 
     const promise = slug ? agent.Articles.update({ ...article, slug }) : agent.Articles.create(article);
-
-    onSubmit(promise);
-  };
-
-  useEffect(() => {
-    if (urlslug) {
-      onUnload();
-      onLoad(agent.Articles.get(urlslug));
+    const results = await Promise.resolve(promise);
+    if (results.errors) {
+      setErrors(results.errors);
+      setInProgress(false);
     } else {
-      onLoad(null);
+      history.push(`/article/${results.article.slug}`);
     }
-  }, [urlslug]);
+  };
 
   return (
     <div className="editor-page">
@@ -117,7 +99,7 @@ const Editor: React.FC<EditorProps> = ({
                     type="text"
                     placeholder="Article Title"
                     value={title}
-                    onChange={changeTitle}
+                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setTitle(ev.target.value)}
                   />
                 </fieldset>
 
@@ -127,7 +109,7 @@ const Editor: React.FC<EditorProps> = ({
                     type="text"
                     placeholder="What's this article about?"
                     value={description}
-                    onChange={changeDescription}
+                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setDescription(ev.target.value)}
                   />
                 </fieldset>
 
@@ -137,7 +119,7 @@ const Editor: React.FC<EditorProps> = ({
                     rows={8}
                     placeholder="Write your article (in markdown)"
                     value={body}
-                    onChange={changeBody}
+                    onChange={(ev: React.ChangeEvent<HTMLTextAreaElement>) => setBody(ev.target.value)}
                   />
                 </fieldset>
 
@@ -147,7 +129,7 @@ const Editor: React.FC<EditorProps> = ({
                     type="text"
                     placeholder="Enter tags"
                     value={tagInput}
-                    onChange={changeTagInput}
+                    onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setTagInput(ev.target.value)}
                     onKeyUp={watchForEnter}
                   />
 
@@ -185,4 +167,4 @@ const Editor: React.FC<EditorProps> = ({
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Editor);
+export default Editor;

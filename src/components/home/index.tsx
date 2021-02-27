@@ -42,11 +42,9 @@ const Home: React.FC<HomeProps> = ({ token, appName }) => {
           results = await agent.Articles.all(currentPage);
           break;
       }
-      if (!isArticleLoadCanceled && results) {
-        if (!results.errors) {
-          setArticles(results.articles);
-          setCount(results.articlesCount);
-        }
+      if (!isArticleLoadCanceled && results && !results.errors) {
+        setArticles(results.articles);
+        setCount(results.articlesCount);
       }
       setLoading(false);
     })();
@@ -61,10 +59,8 @@ const Home: React.FC<HomeProps> = ({ token, appName }) => {
 
     (async () => {
       const results = await agent.Tags.getAll();
-      if (!isTagLoadCanceled) {
-        if (!results.errors) {
-          setTagList(results.tags);
-        }
+      if (!isTagLoadCanceled && !results.errors) {
+        setTagList(results.tags);
       }
     })();
 

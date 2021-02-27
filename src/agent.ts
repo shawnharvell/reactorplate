@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import superagent from "superagent";
 
 import * as Types from "./reducers/types";
@@ -6,10 +5,10 @@ import * as Types from "./reducers/types";
 const API_ROOT = "https://conduit.productionready.io/api";
 
 const encode = encodeURIComponent;
-const responseBody = (res: any) => res.body;
+const responseBody = (res: superagent.Response) => res.body;
 
 let token: string = null;
-const tokenPlugin = (req: any) => {
+const tokenPlugin = (req: superagent.SuperAgentRequest) => {
   if (token) {
     req.set("authorization", `Token ${token}`);
   }

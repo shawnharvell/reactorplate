@@ -22,10 +22,8 @@ const CommentContainer: React.FC<CommentContainerProps> = ({ currentUser, slug }
 
       (async () => {
         const results = await agent.Comments.forArticle(slug);
-        if (!isCanceled) {
-          if (!results.errors) {
-            setComments(results.comments);
-          }
+        if (!isCanceled && !results.errors) {
+          setComments(results.comments);
         }
       })();
     }

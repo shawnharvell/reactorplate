@@ -17,7 +17,7 @@ export interface ArticleProps {
 }
 
 const Article: React.FC<ArticleProps> = ({ currentUser }) => {
-  const { id: slug = undefined } = useParams<{ id: string }>();
+  const { id: slug } = useParams<{ id: string }>();
 
   const [article, setArticle] = useState<Types.Article>();
 

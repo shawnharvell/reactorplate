@@ -30,13 +30,6 @@ const FollowUserButton: React.FC<FollowUserButtonProps> = ({ isUser, user, follo
     return null;
   }
 
-  let classes = "btn btn-sm action-btn";
-  if (user.following) {
-    classes += " btn-secondary";
-  } else {
-    classes += " btn-outline-secondary";
-  }
-
   const handleClick = (ev: React.MouseEvent) => {
     ev.preventDefault();
     if (user.following) {
@@ -47,7 +40,14 @@ const FollowUserButton: React.FC<FollowUserButtonProps> = ({ isUser, user, follo
   };
 
   return (
-    <button type="button" className={classes} onClick={handleClick}>
+    <button
+      type="button"
+      className={classnames("btn btn-sm action-btn", {
+        "btn-secondary": user.following,
+        "btn-outline-secondary": !user.following,
+      })}
+      onClick={handleClick}
+    >
       <i className="ion-plus-round" />
       &nbsp;
       {user.following ? "Unfollow" : "Follow"} {user.username}

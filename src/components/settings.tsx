@@ -115,17 +115,17 @@ const mapStateToProps = (state: { common: { currentUser: Types.User } }) => ({
   currentUser: state.common.currentUser,
 });
 
+const onClickLogout = () => {
+  window.localStorage.setItem("jwt", "");
+  agent.setToken(null);
+};
+
 export interface SettingsProps {
   currentUser?: Types.User;
 }
 
 const Settings: React.FC<SettingsProps> = ({ currentUser }) => {
   const [errors, setErrors] = useState<Types.Errors>(undefined);
-
-  const onClickLogout = () => {
-    window.localStorage.setItem("jwt", "");
-    agent.setToken(null);
-  };
 
   const onSubmitForm = async (user: Types.User) => {
     const results = await agent.Auth.save(user);

@@ -4,9 +4,7 @@ import { composeWithDevTools } from "redux-devtools-extension/developmentOnly";
 import { StoreEnhancer } from "@reduxjs/toolkit";
 
 import { promiseMiddleware, localStorageMiddleware } from "./middleware";
-import articleList from "./reducers/article-list";
 import common from "./reducers/common";
-import editor from "./reducers/editor";
 
 const getMiddleware = (): StoreEnhancer<{ dispatch: unknown }, unknown> =>
   process.env.NODE_ENV === "production"
@@ -16,9 +14,7 @@ const getMiddleware = (): StoreEnhancer<{ dispatch: unknown }, unknown> =>
 
 export const store = createStore(
   combineReducers({
-    articleList,
     common,
-    editor,
   }),
   composeWithDevTools(getMiddleware())
 );

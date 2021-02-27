@@ -58,3 +58,4 @@ function isPromise(v: any) {
 }
 
 export { promiseMiddleware, localStorageMiddleware };
+/* eslint-enable no-param-reassign, @typescript-eslint/explicit-module-boundary-types, @typescript-eslint/no-explicit-any */
