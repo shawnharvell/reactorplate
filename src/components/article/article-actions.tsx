@@ -1,8 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import agent from "../../agent";
-import * as Types from "../../reducers/types";
+import agent from "../../data/agent";
+import * as Types from "../../data/types";
 
 export interface ArticleActionsProps {
   article?: Types.Article;

@@ -1,7 +1,7 @@
 import React from "react";
 
-import agent from "../../agent";
-import * as Types from "../../reducers/types";
+import agent from "../../data/agent";
+import * as Types from "../../data/types";
 
 export interface DeleteButtonProps {
   slug?: Types.Slug;

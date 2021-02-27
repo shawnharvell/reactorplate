@@ -5,11 +5,12 @@ import { useParams } from "react-router-dom";
 
 import ArticleMeta from "./article-meta";
 import CommentContainer from "./comment-container";
-import agent from "../../agent";
-import * as Types from "../../reducers/types";
+import agent from "../../data/agent";
+import * as Types from "../../data/types";
+import { RootState } from "../../data/store";
 
-const mapStateToProps = (state: { common: { currentUser: Types.User } }) => ({
-  currentUser: state.common.currentUser,
+const mapStateToProps = (state: RootState) => ({
+  currentUser: state.user.currentUser,
 });
 
 export interface ArticleProps {

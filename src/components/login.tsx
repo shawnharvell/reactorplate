@@ -1,11 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
+import { connect } from "react-redux";
 
 import ListErrors from "./list-errors";
-import agent from "../agent";
-import * as Types from "../reducers/types";
+import agent from "../data/agent";
+import * as Types from "../data/types";
+import { AppDispatch } from "../data/store";
+import { clearUser, setUser } from "../data/user-slice";
 
-const Login: React.FC = () => {
+const mapDispatchToProps = (dispatch: AppDispatch) => {
+  return {
+    clearUser: () => dispatch(clearUser()),
+    setUser: (user: Types.User) => dispatch(setUser(user)),
+  };
+};
+
+export interface LoginProps {
+  clearUser?: () => void;
+  setUser?: (user: Types.User) => void;
+}
+
+const Login: React.FC<LoginProps> = ({ clearUser, setUser }) => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [inProgress, setInProgress] = useState<boolean>(false);
@@ -13,14 +28,21 @@ const Login: React.FC = () => {
 
   const history = useHistory();
 
+  useEffect(() => {
+    clearUser?.();
+    window.localStorage.setItem("jwt", undefined);
+  }, []);
+
   const onClickSubmit = async (ev: React.MouseEvent) => {
     setInProgress(true);
     ev.preventDefault();
     const results = await agent.Auth.login(email, password);
+    console.log("RESULTS", results);
     if (results.errors) {
       setErrors(results.errors);
     } else {
       setErrors(undefined);
+      setUser?.(results.user);
       window.localStorage.setItem("jwt", results.user.token);
       agent.setToken(results.user.token);
       history?.push("/");
@@ -80,4 +102,4 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default connect(null, mapDispatchToProps)(Login);

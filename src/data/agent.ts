@@ -1,11 +1,13 @@
 import superagent from "superagent";
 
-import * as Types from "./reducers/types";
+import * as Types from "./types";
 
 const API_ROOT = "https://conduit.productionready.io/api";
 
 const encode = encodeURIComponent;
 const responseBody = (res: superagent.Response) => res.body;
+// the api sends error validation in the body, so we treat 4xx errors as "valid"
+const okStatuses = (res: superagent.Response) => res.status < 500;
 
 let token: string = null;
 const tokenPlugin = (req: superagent.SuperAgentRequest) => {
@@ -51,12 +53,12 @@ export interface CommentResult {
 }
 
 const requests = {
-  del: (url: string) => superagent.del(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody),
-  get: (url: string) => superagent.get(`${API_ROOT}${url}`).use(tokenPlugin).then(responseBody),
+  del: (url: string) => superagent.del(`${API_ROOT}${url}`).ok(okStatuses).use(tokenPlugin).then(responseBody),
+  get: (url: string) => superagent.get(`${API_ROOT}${url}`).ok(okStatuses).use(tokenPlugin).then(responseBody),
   put: (url: string, body: string | Record<string, unknown>) =>
-    superagent.put(`${API_ROOT}${url}`).send(body).use(tokenPlugin).then(responseBody),
+    superagent.put(`${API_ROOT}${url}`).ok(okStatuses).send(body).use(tokenPlugin).then(responseBody),
   post: (url: string, body: string | Record<string, unknown>) =>
-    superagent.post(`${API_ROOT}${url}`).send(body).use(tokenPlugin).then(responseBody),
+    superagent.post(`${API_ROOT}${url}`).ok(okStatuses).send(body).use(tokenPlugin).then(responseBody),
 };
 
 const Auth = {

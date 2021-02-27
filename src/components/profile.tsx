@@ -4,8 +4,9 @@ import { connect } from "react-redux";
 import classnames from "classnames";
 
 import ArticleList from "./article-list";
-import agent from "../agent";
-import * as Types from "../reducers/types";
+import agent from "../data/agent";
+import * as Types from "../data/types";
+import { RootState } from "../data/store";
 
 const EditProfileSettings: React.FC<{ isUser: boolean }> = ({ isUser }) => {
   if (isUser) {
@@ -55,8 +56,8 @@ const FollowUserButton: React.FC<FollowUserButtonProps> = ({ isUser, user, follo
   );
 };
 
-const mapStateToProps = (state: { common: { currentUser: Types.User } }) => ({
-  currentUser: state.common.currentUser,
+const mapStateToProps = (state: RootState) => ({
+  currentUser: state.user.currentUser,
 });
 
 export interface ProfileProps {
@@ -81,7 +82,7 @@ const Profile: React.FC<ProfileProps> = ({ currentPage, currentUser }) => {
     setProfileLoading(true);
     (async () => {
       const profileResults = await agent.Profile.get(username);
-      if (!profileLoadCanceled) {
+      if (!profileLoadCanceled && !profileResults.errors) {
         setProfile(profileResults.profile);
         setProfileLoading(false);
       }

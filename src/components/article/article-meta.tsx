@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 import ArticleActions from "./article-actions";
-import * as Types from "../../reducers/types";
+import * as Types from "../../data/types";
 
 export interface ArticleMetaProps {
   article?: Types.Article;

@@ -1,6 +1,6 @@
 import React from "react";
 
-import * as Types from "../../reducers/types";
+import * as Types from "../../data/types";
 
 export interface TagsProps {
   tags?: Types.Tag[];

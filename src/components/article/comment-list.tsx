@@ -1,7 +1,7 @@
 import React from "react";
 import Comment from "./comment";
 
-import * as Types from "../../reducers/types";
+import * as Types from "../../data/types";
 
 export interface CommentListProps {
   currentUser?: Types.User;

@@ -2,7 +2,7 @@ import React from "react";
 
 import ArticlePreview from "./article-preview";
 import ListPagination from "./list-pagination";
-import * as Types from "../reducers/types";
+import * as Types from "../data/types";
 
 export interface ArticleListProps {
   articles?: Types.Article[];

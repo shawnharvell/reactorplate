@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 
 import ListErrors from "./list-errors";
-import agent from "../agent";
-import * as Types from "../reducers/types";
+import agent from "../data/agent";
+import * as Types from "../data/types";
+import { RootState } from "../data/store";
 
 export interface SettingsFormProps {
   currentUser?: Types.User;
@@ -111,8 +112,8 @@ const SettingsForm: React.FC<SettingsFormProps> = ({ currentUser, onSubmitForm }
   );
 };
 
-const mapStateToProps = (state: { common: { currentUser: Types.User } }) => ({
-  currentUser: state.common.currentUser,
+const mapStateToProps = (state: RootState) => ({
+  currentUser: state.user.currentUser,
 });
 
 const onClickLogout = () => {

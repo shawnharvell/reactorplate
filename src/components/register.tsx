@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 
 import ListErrors from "./list-errors";
-import agent from "../agent";
-import * as Types from "../reducers/types";
+import agent from "../data/agent";
+import * as Types from "../data/types";
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState<string>("");

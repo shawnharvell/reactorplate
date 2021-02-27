@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
-import agent from "../agent";
+import agent from "../data/agent";
 import ListErrors from "./list-errors";
-import * as Types from "../reducers/types";
+import * as Types from "../data/types";
 
 const Editor: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();

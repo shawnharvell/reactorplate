@@ -3,26 +3,27 @@ import { connect } from "react-redux";
 
 import Banner from "./banner";
 import Tags from "./tags";
-import agent, { ArticleListResult } from "../../agent";
-import * as Types from "../../reducers/types";
+import agent, { ArticleListResult } from "../../data/agent";
+import * as Types from "../../data/types";
 import ArticleList from "../article-list";
+import { RootState } from "../../data/store";
 
-const mapStateToProps = (state: { common: { appName: string; token: string } }) => ({
+const mapStateToProps = (state: RootState) => ({
   appName: state.common.appName,
-  token: state.common.token,
+  currentUser: state.user.currentUser,
 });
 
 export interface HomeProps {
-  token?: string;
+  currentUser?: Types.User;
   appName: string;
 }
 
-const Home: React.FC<HomeProps> = ({ token, appName }) => {
+const Home: React.FC<HomeProps> = ({ currentUser, appName }) => {
   const [articles, setArticles] = useState<Types.Article[]>([]);
   const [count, setCount] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [tab, setTab] = useState<string>(token ? "feed" : "all");
+  const [tab, setTab] = useState<string>(currentUser?.token ? "feed" : "all");
   const [tag, setTag] = useState<string>("");
   const [tagList, setTagList] = useState<Types.Tag[]>([]);
 
@@ -52,7 +53,7 @@ const Home: React.FC<HomeProps> = ({ token, appName }) => {
     return () => {
       isArticleLoadCanceled = true;
     };
-  }, [tab, token, tag, currentPage]);
+  }, [tab, currentUser?.token, tag, currentPage]);
 
   useEffect(() => {
     let isTagLoadCanceled = false;
@@ -86,14 +87,14 @@ const Home: React.FC<HomeProps> = ({ token, appName }) => {
 
   return (
     <div className="home-page">
-      <Banner token={token} appName={appName} />
+      <Banner token={currentUser?.token} appName={appName} />
 
       <div className="container page">
         <div className="row">
           <div className="col-md-9">
             <div className="feed-toggle">
               <ul className="nav nav-pills outline-active">
-                {!!token && (
+                {!!currentUser?.token && (
                   <li className="nav-item">
                     <a
                       href="#"

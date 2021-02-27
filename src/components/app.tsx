@@ -1,11 +1,9 @@
 import React, { useEffect } from "react";
 import { connect } from "react-redux";
-import { Route, Switch, useHistory } from "react-router-dom";
-import { Dispatch } from "redux";
+import { Route, Switch } from "react-router-dom";
 
-import agent, { UserResult } from "../agent";
+import agent from "../data/agent";
 import Header from "./header";
-import { APP_LOAD, REDIRECT } from "../constants/action-types";
 import Article from "./article";
 import Editor from "./editor";
 import Home from "./home";
@@ -13,49 +11,60 @@ import Login from "./login";
 import Profile from "./profile";
 import Register from "./register";
 import Settings from "./settings";
-import * as Types from "../reducers/types";
+import * as Types from "../data/types";
+import { AppDispatch, RootState } from "../data/store";
+import { setUser } from "../data/user-slice";
+import { setAppLoaded } from "../data/common-slice";
 
-const mapStateToProps = (state: {
-  common: { appLoaded?: boolean; appName?: string; currentUser?: Types.User; redirectTo?: string };
-}) => ({
+const mapDispatchToProps = (dispatch: AppDispatch) => {
+  return {
+    setUser: (user: Types.User) => dispatch(setUser(user)),
+    setAppLoaded: () => dispatch(setAppLoaded()),
+  };
+};
+
+const mapStateToProps = (state: RootState) => ({
   appLoaded: state.common.appLoaded,
   appName: state.common.appName,
-  currentUser: state.common.currentUser,
-  redirectTo: state.common.redirectTo,
-});
-
-const mapDispatchToProps = (dispatch: Dispatch) => ({
-  onLoad: (payload: Promise<UserResult>, token: string) =>
-    dispatch({ type: APP_LOAD, payload, token, skipTracking: true }),
-  onRedirect: () => dispatch({ type: REDIRECT }),
+  currentUser: state.user.currentUser,
 });
 
 export interface AppProps {
-  onLoad?: (payload: Promise<UserResult>, token?: string) => void;
-  onRedirect?: () => void;
-  redirectTo?: string;
   appName?: string;
   currentUser?: Types.User;
   appLoaded?: boolean;
+  setUser?: (user: Types.User) => void;
+  setAppLoaded?: () => void;
 }
 
-const App: React.FC<AppProps> = ({ onLoad, onRedirect, redirectTo, appName, currentUser, appLoaded }) => {
-  const history = useHistory();
+const App: React.FC<AppProps> = ({ appName, currentUser, appLoaded, setAppLoaded, setUser }) => {
   useEffect(() => {
-    const token = window.localStorage.getItem("jwt");
-    if (token) {
-      agent.setToken(token);
-    }
+    let isCanceled = false;
+    (async () => {
+      const token = window.localStorage.getItem("jwt");
+      if (token) {
+        agent.setToken(token);
 
-    onLoad(token ? agent.Auth.current() : null, token);
+        const results = await agent.Auth.current();
+        if (!isCanceled) {
+          if (results.errors) {
+            // something has gone horribly wrong
+            console.error(results.errors);
+          } else {
+            setUser(results.user);
+          }
+        }
+      }
+
+      if (!isCanceled) {
+        setAppLoaded?.();
+      }
+    })();
+
+    return () => {
+      isCanceled = true;
+    };
   }, []);
-
-  useEffect(() => {
-    if (redirectTo) {
-      history?.push(redirectTo);
-      onRedirect();
-    }
-  }, [redirectTo]);
 
   if (appLoaded) {
     return (

@@ -4,10 +4,10 @@ import React from "react";
 import { HashRouter } from "react-router-dom";
 
 import App from "./components/App";
-import { store } from "./store";
+import { store } from "./data/store";
 
 if (process.env.NODE_ENV !== "production") {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, import/no-extraneous-dependencies
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
   const axe = require("@axe-core/react");
   axe(React, ReactDOM, 1000);
 }

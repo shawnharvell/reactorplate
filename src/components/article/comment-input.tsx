@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import agent from "../../agent";
+import agent from "../../data/agent";
 import ListErrors from "../list-errors";
-import * as Types from "../../reducers/types";
+import * as Types from "../../data/types";
 
 export interface CommentInputProps {
   slug?: Types.Slug;
